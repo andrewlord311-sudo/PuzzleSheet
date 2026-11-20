@@ -1,0 +1,13 @@
+{
+  "name": "Puzzle Sheet",
+  "short_name": "Puzzles",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffe9f6",
+  "theme_color": "#ffe9f6",
+  "icons": [
+    { "src": "art/icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "art/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

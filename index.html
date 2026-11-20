@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Puzzle Sheet</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Puzzles">
+  <meta name="theme-color" content="#ffe9f6">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="art/icon-180.png">
+  <link rel="icon" href="art/icon-180.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Home: today's sheet -->
+  <section id="screen-home" class="screen active">
+    <header class="home-top">
+      <h1 class="rainbow" aria-label="Puzzle Sheet"><span>P</span><span>u</span><span>z</span><span>z</span><span>l</span><span>e</span> <span>S</span><span>h</span><span>e</span><span>e</span><span>t</span></h1>
+      <a id="garden-link" class="stars-badge" href="#"><span id="home-stars">⭐ 0</span><small>Guinea Pig Garden</small></a>
+    </header>
+    <p id="sheet-info" class="sheet-info"></p>
+    <div id="sheet-done" class="sheet-done" hidden>🎉 You finished the whole sheet! 🎉</div>
+    <div id="cards" class="cards"></div>
+    <div class="home-bottom">
+      <button id="new-sheet" class="big-btn">✨ Make me a new sheet</button>
+    </div>
+    <a href="#" id="grownups-link" class="grownups-link">Grown-ups</a>
+  </section>
+
+  <!-- A puzzle -->
+  <section id="screen-play" class="screen">
+    <header class="play-top">
+      <button id="back-btn" class="round-btn" aria-label="Back to the sheet">⬅</button>
+      <div class="play-titles"><h2 id="play-title"></h2><span id="play-level" class="play-level"></span></div>
+      <button id="hint-btn" class="round-btn hint" aria-label="Hint">💡<small>Hint</small></button>
+    </header>
+    <div class="play-host-row">
+      <div id="play-host" class="play-host"></div>
+      <div id="play-say" class="speech"></div>
+    </div>
+    <div id="play-body" class="play-body"></div>
+  </section>
+
+  <!-- Grown-ups -->
+  <section id="screen-grownups" class="screen">
+    <header class="play-top">
+      <button id="gu-back" class="round-btn" aria-label="Back">⬅</button>
+      <div class="play-titles"><h2>What she likes</h2></div>
+    </header>
+    <div id="gu-body" class="gu-body"></div>
+  </section>
+
+  <!-- You did it! -->
+  <div id="celebrate" class="overlay" hidden>
+    <div class="cel-card">
+      <div id="cel-host" class="cel-host"></div>
+      <h2 id="cel-title"></h2>
+      <p id="cel-msg" class="cel-msg"></p>
+      <div id="cel-stars" class="cel-stars"></div>
+      <h3>Did you like this puzzle?</h3>
+      <div class="cel-choices">
+        <button data-h="0">😕<small>Not for me</small></button>
+        <button data-h="1">❤️<small>It was OK</small></button>
+        <button data-h="2">❤️❤️<small>I liked it</small></button>
+        <button data-h="3">❤️❤️❤️<small>I loved it!</small></button>
+      </div>
+      <h3>How hard was it?</h3>
+      <div class="cel-choices">
+        <button data-f="easy">😎<small>Too easy</small></button>
+        <button data-f="right">🙂<small>Just right</small></button>
+        <button data-f="hard">😅<small>Tricky</small></button>
+      </div>
+      <button id="cel-done" class="big-btn" disabled>Back to my sheet ➜</button>
+    </div>
+  </div>
+
+  <script src="art/mascots.js"></script>
+  <script src="art/pigs.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/words.js"></script>
+  <script src="js/puzzles/wordsearch.js"></script>
+  <script src="js/puzzles/crossword.js"></script>
+  <script src="js/puzzles/sudoku.js"></script>
+  <script src="js/puzzles/nonogram.js"></script>
+  <script src="js/puzzles/code.js"></script>
+  <script src="js/puzzles/music.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
