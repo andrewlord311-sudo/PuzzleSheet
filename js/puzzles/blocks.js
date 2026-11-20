@@ -1,6 +1,6 @@
 // ---- Block Sums (add and take away with towers of blocks) ----
-// Level 1: adding up to 5. Level 2: adding up to 10. Level 3: adding, taking away and
-// "what is missing?" up to 10. Five questions. Read aloud.
+// Level 1: adding up to 10. Level 2: adding and taking away up to 12. Level 3: adding, taking away and
+// "what is missing?" up to 15. Five questions. Read aloud.
 'use strict';
 PS.BLOCK_COLOURS = ['#ff4d4d', '#ff9a1f', '#ffd21f', '#35c46b', '#3fb8ff', '#5a5bff', '#a05cff', '#ff5cc0', '#9aa3b2', '#ffffff'];
 // A tower of n blocks, two columns of five when it is tall (like a ten-frame).
@@ -21,9 +21,10 @@ PS.PUZZLES.blocks = {
   intro: 'Look at the towers. Count the blocks and pick the answer!',
   render(el, ctx) {
     const { rng, level } = ctx;
-    const top = level === 1 ? 5 : 10, qs = [], seen = new Set();
+    const top = [10, 12, 15][level - 1], qs = [], seen = new Set();
     while (qs.length < 5) {
       let kind = 'add';
+      if (level === 2) kind = PS.pick(rng, ['add', 'sub']);
       if (level === 3) kind = PS.pick(rng, ['add', 'sub', 'missing']);
       let a, b, c, answer, say, build;
       if (kind === 'add') {
@@ -41,7 +42,7 @@ PS.PUZZLES.blocks = {
       }
       const key = say; if (seen.has(key)) continue; seen.add(key);
       const wrong = new Set();
-      while (wrong.size < (level === 1 ? 2 : 3)) { const w = answer + Math.floor(rng() * 5) - 2; if (w !== answer && w >= 0 && w <= 10) wrong.add(w); }
+      while (wrong.size < 3) { const w = answer + Math.floor(rng() * 7) - 3; if (w !== answer && w >= 0 && w <= top + 2) wrong.add(w); }
       qs.push({ say, build, options: PS.shuffle(rng, [answer, ...wrong]).map(v => ({ html: v, correct: v === answer })) });
     }
     return PS.quiz(el, ctx, qs);

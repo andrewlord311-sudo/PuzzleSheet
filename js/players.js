@@ -18,7 +18,7 @@ PS.PLAYERS = {
   theo: {
     name: 'Theo', face: '🦖', colour: '#2f8cff', host: 'barnaby', spoken: true, garden: false,
     blurb: 'Numbers, pictures and mazes. Read aloud!',
-    core: ['count', 'blocks', 'next', 'sudoku4', 'dots', 'maze'],
+    core: ['blocks', 'bonds', 'splits', 'phonics', 'jigsaw', 'sudoku4', 'dots', 'maze'],
     pairs: [],
   },
 };

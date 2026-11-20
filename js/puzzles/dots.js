@@ -1,5 +1,5 @@
 // ---- Dot to Dot (tap the numbers in order and a picture appears) ----
-// Level 1: up to 9 dots, level 2: up to 12, level 3: up to 16.
+// Level 1: about 13 dots, level 2: about 17, level 3: about 21 (extra dots are added along the longest edges).
 'use strict';
 (function () {
   const star = n => Array.from({ length: n }, (_, k) => { const a = -Math.PI / 2 + k * Math.PI / (n / 2), r = k % 2 ? 22 : 46; return [50 + r * Math.cos(a), 52 + r * Math.sin(a)]; });
@@ -23,7 +23,13 @@ PS.PUZZLES.dots = {
     const { rng, level } = ctx;
     const maxDots = [9, 12, 16][level - 1];
     const pic = PS.pick(rng, PS.DOT_PICTURES.filter(p => p.pts.length <= maxDots && p.pts.length >= maxDots - 5));
-    const pts = pic.pts;
+    const pts = pic.pts.map(q => q.slice());
+    while (pts.length < pic.pts.length + [4, 5, 5][level - 1]) {   // split the longest edge
+      let bi = 0, bl = -1;
+      pts.forEach((q, i) => { const o = pts[(i + 1) % pts.length], l = Math.hypot(q[0] - o[0], q[1] - o[1]); if (l > bl) { bl = l; bi = i; } });
+      const q = pts[bi], o = pts[(bi + 1) % pts.length];
+      pts.splice(bi + 1, 0, [(q[0] + o[0]) / 2, (q[1] + o[1]) / 2]);
+    }
     el.innerHTML = '';
     const wrap = PS.el('div', 'dt-wrap');
     const board = PS.el('div', 'dt-board');

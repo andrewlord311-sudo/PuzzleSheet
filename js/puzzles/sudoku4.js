@@ -1,5 +1,5 @@
 // ---- Picture Sudoku 4×4 (four pictures, no repeats in a row, column or box) ----
-// Level 1: 10 pictures given, level 2: 8, level 3: 6 (always one answer).
+// Level 1: 12 pictures given, level 2: 10, level 3: 8 (always one answer).
 'use strict';
 PS.sudoku4 = function (rng) {
   const base = (r, c) => (2 * (r % 2) + Math.floor(r / 2) + c) % 4;
@@ -42,9 +42,11 @@ PS.PUZZLES.sudoku4 = {
   intro: 'Every row, every column and every box needs all four pictures. No repeats!',
   render(el, ctx) {
     const { rng, level } = ctx;
-    const SETS = [['🦖', '🦕', '🥚', '🌴'], ['🚗', '🚌', '🚒', '🚓'], ['🐛', '🐞', '🐝', '🦋'], ['⚽', '🏏', '🏉', '🎾'], ['🧱', '🎹', '🥁', '🎺']];
+    // four clearly different pictures, each on its own colour
+    const SETS = [['🦖', '🌋', '🥚', '🌴'], ['🚒', '🚕', '🚜', '🚙'], ['🐞', '🐝', '🐛', '🦋'], ['⚽', '🏀', '🏈', '🎾']];
+    const TINT = ['#ffc9c9', '#fff0a0', '#c4f0cf', '#c6e2ff'];
     const SYM = PS.pick(rng, SETS);
-    const sol = PS.sudoku4(rng), puz = PS.sudoku4Holes(rng, sol, [10, 8, 6][level - 1]);
+    const sol = PS.sudoku4(rng), puz = PS.sudoku4Holes(rng, sol, [12, 10, 8][level - 1]);
 
     el.innerHTML = '';
     const wrap = PS.el('div', 'su-wrap');
@@ -53,12 +55,13 @@ PS.PUZZLES.sudoku4 = {
     for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
       const v = puz[r][c];
       const d = PS.el('div', 'su-cell' + (v >= 0 ? ' given' : '') + (c === 1 ? ' br' : '') + (r === 1 ? ' bb' : ''), v >= 0 ? SYM[v] : '');
+      if (v >= 0) d.style.background = TINT[v];
       const cell = { r, c, v, given: v >= 0, el: d };
       d.addEventListener('pointerdown', e => { e.preventDefault(); if (!cell.given) { PS.tap(); choose(cell); } });
       board.appendChild(d); cells.push(cell);
     }
     const pal = PS.el('div', 'su-pal');
-    SYM.forEach((s, i) => { const b = PS.el('button', 'su-pick', s); b.addEventListener('pointerdown', e => { e.preventDefault(); place(i); }); pal.appendChild(b); });
+    SYM.forEach((s, i) => { const b = PS.el('button', 'su-pick', s); b.style.background = TINT[i]; b.addEventListener('pointerdown', e => { e.preventDefault(); place(i); }); pal.appendChild(b); });
     const er = PS.el('button', 'su-pick su-erase', '🧽'); er.addEventListener('pointerdown', e => { e.preventDefault(); place(-1); }); pal.appendChild(er);
     wrap.append(board, pal); el.appendChild(wrap);
 
@@ -66,7 +69,7 @@ PS.PUZZLES.sudoku4 = {
     function choose(cell) { cells.forEach(x => x.el.classList.remove('sel')); sel = cell; cell.el.classList.add('sel'); }
     function place(v) {
       if (!sel) { ctx.say('Tap an empty square first.'); return; }
-      PS.tap(); sel.v = v; sel.el.textContent = v >= 0 ? SYM[v] : '';
+      PS.tap(); sel.v = v; sel.el.textContent = v >= 0 ? SYM[v] : ''; sel.el.style.background = v >= 0 ? TINT[v] : '';
       sel.el.classList.remove('pop'); void sel.el.offsetWidth; if (v >= 0) sel.el.classList.add('pop');
       check();
     }

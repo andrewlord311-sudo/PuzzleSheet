@@ -518,3 +518,38 @@ h1, h2, h3 { font-family: var(--head); font-weight: 400; margin: 0; }
 .cg-cell.on { background: color-mix(in srgb, var(--c) 22%, #fff); border-color: var(--c); }
 .cg-cell.dup .cg-guess { color: #e5383b; }
 .cg-tip { font-size: 15px; opacity: .7; }
+
+/* ---- Theo's newer puzzles: ten-frames, splits, letter sounds, jigsaw ---- */
+.su4 .su-cell.clash { box-shadow: inset 0 0 0 6px #e5483b; }
+.su4 .su-cell.given { box-shadow: inset 0 0 0 3px #0002; }
+.tf-frame { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 8px; border: 4px solid var(--ink); border-radius: 14px; background: #fff; width: min(46vw, 300px); }
+.tf-cell { aspect-ratio: 1; border-radius: 50%; border: 3px dashed #0003; }
+.tf-cell.on { border: 3px solid var(--ink); }
+.sp-head { font-family: var(--head); font-size: 40px; text-align: center; }
+.sp-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.sp-c { width: clamp(44px, 8vw, 68px); height: clamp(44px, 8vw, 68px); border-radius: 50%; border: 4px solid var(--ink); background: #ffd21f; }
+.sp-c.a, .sp-line i.a, .sp-n.a { background: #ff4d4d; }
+.sp-c.b, .sp-line i.b, .sp-n.b { background: #3fb8ff; }
+.sp-c.a { margin-right: 0; } .sp-c.b { margin-left: 0; }
+.sp-c.flash { animation: pulse .6s 3; }
+.sp-found { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 60px; }
+.sp-line { display: flex; align-items: center; gap: 4px; }
+.sp-line i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink); display: inline-block; }
+.sp-n { font-family: var(--head); font-size: 26px; min-width: 38px; text-align: center; border-radius: 12px; border: 3px solid var(--ink); color: #fff; padding: 0 6px; }
+.sp-more { font-family: var(--head); font-size: 24px; color: var(--c); }
+.ph-pic { font-size: 130px; line-height: 1; }
+.ph-word { font-family: var(--head); font-size: 90px; letter-spacing: 10px; }
+.ph-gap { color: var(--c); border-bottom: 8px solid var(--c); display: inline-block; min-width: 50px; text-align: center; }
+.ph-l { font-size: 80px; font-family: var(--head); }
+.ph-w { font-size: 52px; font-family: var(--head); }
+.jg-wrap { display: flex; gap: 22px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+.jg-board { display: grid; gap: 5px; width: min(92vw, 660px, 66vh * 1.5); touch-action: none; user-select: none; }
+.jg-board.whole { gap: 0; }
+.jg-slot { border-radius: 10px; overflow: hidden; border: 3px solid #fff; box-shadow: 0 4px 0 #0003; position: relative; background: #fff; }
+.jg-slot.ok { border-color: #35c46b; }
+.jg-slot.sel { border-color: #ffd21f; box-shadow: 0 0 0 5px #ffd21f; }
+.jg-slot.lift { z-index: 20; box-shadow: 0 14px 24px #0005; transition: none; }
+.jg-svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+.jg-guide { width: clamp(130px, 18vw, 220px); border: 4px solid var(--ink); border-radius: 12px; background: #fff; padding: 6px; text-align: center; }
+.jg-guide small { display: block; font-family: var(--head); font-size: 18px; margin-bottom: 4px; }
+.jg-guide .jg-svg { aspect-ratio: 3 / 2; border-radius: 6px; }
