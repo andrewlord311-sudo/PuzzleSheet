@@ -29,6 +29,7 @@ for (const theme of Object.keys(PS.CLUES)) for (const want of [6, 8, 10]) {
 }
 // ---- the newer puzzles ----
 const t0 = Date.now();
+for (const [n, lo, hi] of [[5, 0, 0], [6, 1, 1], [7, 1, 2]]) { const T = Date.now(); let ok = 0; for (let i = 0; i < 15; i++) { const { reg } = PS.queensMake(PS.rng(i + 77), n, lo, hi), L = PS.queensLogic(reg, n); if (PS.queensCount(reg, n) === 1 && L.solved && L.level >= lo && L.level <= hi) ok++; else { bad++; console.log('QUEENS level', n, lo, hi, 'got', JSON.stringify(L)); } } console.log('queens by logic', n, ok, '/15', Date.now() - T, 'ms'); }
 for (const n of [5, 6, 7]) { let uniq = 0; for (let i = 0; i < 20; i++) { const { reg, sol } = PS.queensMake(PS.rng(i + n * 100), n); if (PS.queensCount(reg, n) === 1 && PS.queensCount(reg, n, 9) === 1) uniq++; else bad++; } console.log('queens', n, 'unique', uniq, '/20'); }
 for (const n of [4, 5, 6]) for (let i = 0; i < 20; i++) {
   const p = PS.zipPath(PS.rng(i), n), N = n * n;
