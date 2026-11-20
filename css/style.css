@@ -280,3 +280,33 @@ h1, h2, h3 { font-family: var(--head); font-weight: 400; margin: 0; }
   .cw-clues { max-height: 210px; }
   .cw-right { width: min(700px, 94vw); }
 }
+
+/* Full-size iPad (13-inch, 1366×1024): grow the grids and keys to use the space */
+@media (min-width: 1300px) and (min-height: 950px), (min-width: 1000px) and (min-height: 1300px) {
+  .play-top, .play-host-row, .play-body, .cards, .home-top { max-width: 1320px; }
+  .ws-grid { width: min(92vw, 780px, 72vh); }
+  .ws-word { font-size: 26px; }
+  .ws-theme { font-size: 30px; }
+  .cw-grid { --s: min(calc(800px / var(--w)), calc((100vh - 300px) / var(--h)), 74px); }
+  .cw-right { width: min(520px, 92vw); }
+  .cw-clue { font-size: 21px; }
+  .cw-banner { font-size: 24px; max-width: 760px; }
+  .su-grid { width: min(90vw, 720px, 70vh); }
+  .su-cell { font-size: min(10vw, 70px, 7vh); }
+  .su-pick { width: 100px; height: 100px; font-size: 56px; }
+  .ng-table { --s: min(calc(800px / (var(--w) + 2.4)), calc((100vh - 300px) / (var(--h) + 2.4)), 86px); }
+  .cd-box .cd-pic { font-size: 40px; }
+  .cd-slot { width: 52px; height: 52px; font-size: 40px; }
+  .mu-stave { zoom: 1.55; }
+  .mu-sentence { font-size: 32px; }
+  .kb { max-width: 980px; }
+  .kb-key { max-width: 84px; height: 66px; font-size: 30px; }
+  .cards { gap: 24px; }
+  .card-host, .card-host svg, .card-host .pig-tint, .card-host .pig-tint svg { height: 120px; }
+  .card-host .pig-tint svg { width: 120px; }
+  .card-name { font-size: 30px; }
+}
+@media (min-width: 1000px) and (min-height: 1300px) {
+  .cw-grid { --s: min(calc(92vw / var(--w)), calc((100vh - 720px) / var(--h)), 74px); }
+  .cw-right { width: min(820px, 94vw); }
+}
