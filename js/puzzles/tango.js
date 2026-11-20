@@ -11,7 +11,7 @@ PS.PUZZLES.tango = {
     const { rng, level } = ctx;
     const n = ctx.size || (level === 1 ? 4 : 6), N = n * n;
     const pz = PS.tangoMake(rng, n, ctx.extra != null ? ctx.extra : (level === 2 ? 6 : 0));
-    const SYM = ['☀️', '🌙'];
+    const SYM = ctx.adult ? ['☀︎', '☾'] : ['☀️', '🌙'];
 
     el.innerHTML = '';
     const wrap = PS.el('div', 'tg-wrap');
@@ -22,6 +22,7 @@ PS.PUZZLES.tango = {
     for (let i = 0; i < N; i++) {
       const given = pz.fixed[i] >= 0;
       const d = PS.el('div', 'tg-cell' + (given ? ' given' : ''), given ? SYM[pz.fixed[i]] : '');
+      d.dataset.v = given ? pz.fixed[i] : -1;
       const cell = { i, r: Math.floor(i / n), c: i % n, v: given ? pz.fixed[i] : -1, given, el: d };
       d.addEventListener('pointerdown', e => { e.preventDefault(); if (cell.given) return; PS.tap(); set(cell, cell.v === 1 ? -1 : cell.v + 1); check(); });
       board.appendChild(d); cells.push(cell);
@@ -33,7 +34,13 @@ PS.PUZZLES.tango = {
       e.el = m; holder.appendChild(m);
     });
     holder.prepend(board);
-    const rules = PS.el('div', 'tg-rules', `
+    const rules = PS.el('div', 'tg-rules', ctx.adult ? `
+      <h3>Rules</h3>
+      <p>Fill every square with a sun (☀︎) or a moon (☾).</p>
+      <p>No more than two of the same in a row or column.</p>
+      <p>Each row and column has the same number of each.</p>
+      <p><b class="tg-sign">=</b> the two squares match. <b class="tg-sign">×</b> they differ.</p>
+      <p class="tg-tip">Tap to cycle: sun, moon, empty. Mistakes are marked only when the grid is full.</p>` : `
       <h3>How to play</h3>
       <p>☀️🌙 Fill every square with a sun or a moon</p>
       <p>🚫 No more than <b>two</b> the same in a row</p>
@@ -44,7 +51,7 @@ PS.PUZZLES.tango = {
     wrap.append(holder, rules);
     el.appendChild(wrap);
 
-    function set(cell, v) { cell.v = v; cell.el.textContent = v >= 0 ? SYM[v] : ''; cell.el.classList.remove('hinted'); cell.el.classList.remove('pop'); void cell.el.offsetWidth; if (v >= 0) cell.el.classList.add('pop'); }
+    function set(cell, v) { cell.v = v; cell.el.textContent = v >= 0 ? SYM[v] : ''; cell.el.dataset.v = v; cell.el.classList.remove('hinted'); cell.el.classList.remove('pop'); void cell.el.offsetWidth; if (v >= 0) cell.el.classList.add('pop'); }
     function problems() {
       const bad = new Set(), badEdges = new Set(), v = i => cells[i].v;
       for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
@@ -61,10 +68,13 @@ PS.PUZZLES.tango = {
     }
     function check() {
       const { bad, badEdges } = problems();
-      cells.forEach(x => x.el.classList.toggle('clash', bad.has(x.i) && !x.given));
-      pz.edges.forEach(e => e.el.classList.toggle('bad', badEdges.has(e)));
-      if (bad.size) PS.oops();
-      else if (cells.every(x => x.v >= 0)) ctx.solved('Sun and moon, all in the right places!');
+      const full = cells.every(x => x.v >= 0);
+      // grown-ups are not told off mid-way (a wrong square is often a step towards the right one): only a full grid is marked
+      const show = !ctx.adult || (full && bad.size > 0);
+      cells.forEach(x => x.el.classList.toggle('clash', show && bad.has(x.i) && !x.given));
+      pz.edges.forEach(e => e.el.classList.toggle('bad', show && badEdges.has(e)));
+      if (bad.size) { if (show) { PS.oops(); if (ctx.adult) ctx.say('Not quite: the red squares break a rule.'); } }
+      else if (full) ctx.solved('Sun and moon, all in the right places!');
     }
     return {
       hint() {

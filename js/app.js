@@ -6,12 +6,14 @@
 (function () {
   const $ = id => document.getElementById(id);
   const show = id => { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); };
+  const applyTheme = on => document.body.classList.toggle('theme-adult', !!on && PS.adult());
   let leaveFns = [];
   const leave = () => { leaveFns.forEach(f => { try { f(); } catch {} }); leaveFns = []; };
 
   // ---------------- Home ----------------
   function renderHome() {
-    leave();
+    leave(); applyTheme(true);
+    const AD = PS.adult();
     const sheet = PS.sheet();
     const made = new Date(sheet.made);
     $('sheet-info').textContent = `Sheet ${sheet.no} · ${made.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}`;
@@ -25,11 +27,16 @@
     sheet.items.forEach((it, i) => {
       const P = PS.PUZZLES[it.g];
       const card = PS.el('button', 'card' + (it.done ? ' done' : ''));
-      card.style.setProperty('--c', P.colour);
+      card.style.setProperty('--c', AD ? PS.accent(it.g) : P.colour);
       card.style.animationDelay = (i * 0.06) + 's';
       const lv = PS.level(it.g);
-      const fresh = it.feat ? (PS.votes().some(v => v.g === it.g) ? '⭐ Spotlight' : '🎉 NEW!') : '';
-      card.innerHTML = `
+      const fresh = it.feat ? (PS.votes().some(v => v.g === it.g) ? (AD ? 'Featured' : '⭐ Spotlight') : (AD ? 'New' : '🎉 NEW!')) : '';
+      card.innerHTML = AD ? `
+        ${fresh ? `<div class="card-badge">${fresh}</div>` : ''}
+        <div class="card-num">${i + 1}</div>
+        <div class="card-name">${P.name}</div>
+        <div class="card-level">Level ${lv}</div>
+        <div class="card-state">${it.done ? 'Completed' : 'Open'}</div>` : `
         ${fresh ? `<div class="card-badge">${fresh}</div>` : ''}
         <div class="card-num">${i + 1}</div>
         <div class="card-host">${PS.host(P.host)}</div>
@@ -41,7 +48,10 @@
       grid.appendChild(card);
     });
     const all = sheet.items.every(it => it.done);
-    $('new-sheet').classList.toggle('pulse', all);
+    $('new-sheet').classList.toggle('pulse', all && !AD);
+    $('new-sheet').textContent = AD ? 'New sheet' : '✨ Make me a new sheet';
+    $('sheet-done').textContent = AD ? 'Sheet complete.' : '🎉 You finished the whole sheet! 🎉';
+    $('grownups-link').textContent = AD ? 'Ratings' : 'Grown-ups';
     $('sheet-done').hidden = !all;
     show('screen-home');
   }
@@ -54,8 +64,10 @@
     const level = PS.level(it.g);
     current = { i, g: it.g, level, hints: 0, solved: false };
     const scr = $('screen-play');
-    scr.style.setProperty('--c', P.colour);
-    $('play-title').innerHTML = `${P.icon} ${P.name}`;
+    applyTheme(true);
+    const AD = PS.adult();
+    scr.style.setProperty('--c', AD ? PS.accent(it.g) : P.colour);
+    $('play-title').innerHTML = AD ? P.name : `${P.icon} ${P.name}`;
     $('play-level').textContent = ['Level 1', 'Level 2', 'Level 3'][level - 1];
     $('play-host').innerHTML = PS.host(P.host);
     $('say-btn').hidden = !PS.speakOn();
@@ -72,6 +84,7 @@
     current.api = P.render(body, ctx) || {};
     show('screen-play');
   }
+  const done_label = AD => { $('cel-done').textContent = AD ? 'Back to the sheet' : 'Back to my sheet ➜'; };
   let sayTimer = null;
   let lastSaid = '';
   function say(text) {
@@ -92,17 +105,25 @@
   function celebrate(msg) {
     const P = PS.PUZZLES[current.g];
     const stars = current.hints === 0 ? 3 : current.hints <= 2 ? 2 : 1;
+    const AD = PS.adult();
     PS.addStars(stars);
-    PS.fanfare(); setTimeout(PS.wheek, 700); PS.confetti();
+    if (AD) PS.ding(); else { PS.fanfare(); setTimeout(PS.wheek, 700); PS.confetti(); }
     const sheet = PS.sheet(); sheet.items[current.i].done = true; PS.saveSheet(sheet);
 
     const ov = $('celebrate');
-    ov.style.setProperty('--c', P.colour);
-    $('cel-host').innerHTML = PS.host(P.host, 'cheer');
-    $('cel-title').textContent = PS.pick(Math.random, ['You did it!', 'Amazing!', 'Puzzle solved!', 'Brilliant work!', 'Hooray!']);
-    setTimeout(() => PS.speak($('cel-title').textContent + ' Did you like it? Pick your hearts. Then tell me how hard it was.'), 600);
+    ov.style.setProperty('--c', AD ? PS.accent(current.g) : P.colour);
+    $('cel-host').innerHTML = AD ? '' : PS.host(P.host, 'cheer');
+    $('cel-title').textContent = AD ? 'Solved' : PS.pick(Math.random, ['You did it!', 'Amazing!', 'Puzzle solved!', 'Brilliant work!', 'Hooray!']);
+    const ask = ov.querySelectorAll('h3'), hb = ov.querySelectorAll('[data-h]'), fb = ov.querySelectorAll('[data-f]');
+    ask[0].textContent = AD ? 'Did you enjoy it?' : 'Did you like this puzzle?'; ask[1].textContent = AD ? 'How hard was it?' : 'How hard was it?';
+    const HL = AD ? ['Not for me', 'It was fine', 'Enjoyed it', 'Loved it'] : ['Not for me', 'It was OK', 'I liked it', 'I loved it!'], HE = AD ? ['', '★', '★★', '★★★'] : ['😕', '❤️', '❤️❤️', '❤️❤️❤️'];
+    hb.forEach((b, k) => { b.innerHTML = `${HE[k] ? HE[k] : ''}<small>${HL[k]}</small>`; });
+    const FL = AD ? [['', 'Too easy'], ['', 'About right'], ['', 'Too hard']] : [['😎', 'Too easy'], ['🙂', 'Just right'], ['😅', 'Tricky']];
+    fb.forEach((b, k) => { b.innerHTML = `${FL[k][0]}<small>${FL[k][1]}</small>`; });
+    done_label(AD);
+    if (!AD) setTimeout(() => PS.speak($('cel-title').textContent + ' Did you like it? Pick your hearts. Then tell me how hard it was.'), 600);
     $('cel-msg').textContent = msg || '';
-    $('cel-stars').textContent = `+${stars} ⭐ for the Guinea Pig Garden`;
+    $('cel-stars').textContent = AD ? '' : `+${stars} ⭐ for the Guinea Pig Garden`;
     let hearts = null, feel = null;
     const done = $('cel-done');
     done.disabled = true;
@@ -132,12 +153,13 @@
   $('new-sheet').addEventListener('click', () => {
     const sheet = PS.sheet();
     const left = sheet.items.filter(it => !it.done).length;
-    if (left && !confirm(`Make a new sheet? The ${left} puzzle${left > 1 ? 's' : ''} you haven't done will go.`)) return;
+    if (left && !confirm(PS.adult() ? `Start a new sheet? The ${left} puzzle${left > 1 ? 's' : ''} you haven't finished will be dropped.` : `Make a new sheet? The ${left} puzzle${left > 1 ? 's' : ''} you haven't done will go.`)) return;
     PS.tap(); PS.makeSheet(); renderHome();
   });
 
   // ---------------- Grown-ups ----------------
   function renderGrownups() {
+    applyTheme(true);
     const votes = PS.votes();
     const mine = new Set([...PS.cfg().core, ...(PS.cfg().pairs || []).flat()]);
     $('gu-title').textContent = `What ${PS.cfg().name} likes`;
@@ -171,7 +193,7 @@
 
   // ---------------- Who is playing? ----------------
   function renderWho() {
-    leave();
+    leave(); applyTheme(false);
     const box = $('who-cards'); box.innerHTML = '';
     Object.entries(PS.PLAYERS).forEach(([id, p], i) => {
       const b = PS.el('button', 'who-card');

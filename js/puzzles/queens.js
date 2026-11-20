@@ -10,7 +10,7 @@ PS.PUZZLES.queens = {
     const { rng, level } = ctx;
     const n = ctx.size || [5, 6, 7][level - 1], LOGIC = ctx.logic || [[0, 0], [1, 1], [1, 2]][level - 1], PIG = ctx.symbol || '🐹', WORD = ctx.word || 'guinea pig';
     const { reg, sol } = ctx.adult ? PS.queensMake(rng, n) : PS.queensMake(rng, n, LOGIC[0], LOGIC[1]);
-    const COLS = PS.shuffle(rng, ['#ff9ec7', '#ffd36b', '#8fe3a5', '#8ec8ff', '#c3a6ff', '#ffab73', '#7fe0dc', '#e8f070']);
+    const COLS = PS.shuffle(rng, ctx.adult ? ['#c6d4e6', '#e7d6bd', '#c9dfcc', '#e2c8d6', '#d4cfeb', '#e4dca9', '#b9dbd8', '#e6c4bb'] : ['#ff9ec7', '#ffd36b', '#8fe3a5', '#8ec8ff', '#c3a6ff', '#ffab73', '#7fe0dc', '#e8f070']);
 
     el.innerHTML = '';
     const wrap = PS.el('div', 'qn-wrap');
@@ -25,12 +25,19 @@ PS.PUZZLES.queens = {
       const cell = { r, c, s: 0, el: d };       // s: 0 empty, 1 cross, 2 guinea pig
       d.addEventListener('pointerdown', e => {
         e.preventDefault();
-        if (cell.s !== 2 && blockedSet().has(cell)) { PS.oops(); ctx.say(`A ${WORD} next door says no! Tap that ${WORD} to take it away.`); return; }
+        if (cell.s !== 2 && blockedSet().has(cell)) {   // ruled out by a placed one: a quick shake, no message to leave behind
+          PS.oops(); cell.el.classList.remove('clash'); void cell.el.offsetWidth; cell.el.classList.add('clash');
+          setTimeout(() => cell.el.classList.remove('clash'), 500); return;
+        }
         PS.tap(); set(cell, (cell.s + 1) % 3); check();
       });
       board.appendChild(d); cells.push(cell);
     }
-    const rules = PS.el('div', 'qn-rules', `
+    const rules = PS.el('div', 'qn-rules', ctx.adult ? `
+      <h3>Rules</h3>
+      <p>One ${WORD} in every <b>row</b>, every <b>column</b> and every <b>colour</b>.</p>
+      <p>No two may touch, even diagonally.</p>
+      <p class="qn-tip">Tap once for ✕, twice for a ${WORD}. Placing one crosses out everything it rules out.</p>` : `
       <h3>How to play</h3>
       <p>${PIG} One in <b>every row</b></p>
       <p>${PIG} One in <b>every column</b></p>

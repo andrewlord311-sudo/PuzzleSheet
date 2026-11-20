@@ -103,9 +103,10 @@ PS.PUZZLES.kenken = {
       const bad = new Set();
       cells.forEach(a => { if (!a.v) return; cells.forEach(b => { if (a !== b && a.v === b.v && (a.r === b.r || a.c === b.c)) { bad.add(a); bad.add(b); } }); });
       pz.cages.forEach(cg => { const vals = cg.cells.map(i => cells[i].v); if (vals.every(Boolean) && !PS.kenkenCage(cg, vals)) cg.cells.forEach(i => bad.add(cells[i])); });
-      cells.forEach(x => x.el.classList.toggle('clash', bad.has(x)));
-      if (bad.size) PS.oops();
-      if (!bad.size && cells.every(x => x.v)) { cells.forEach(x => x.el.classList.remove('sel')); ctx.solved(); }
+      const full = cells.every(x => x.v), show = full && bad.size > 0;   // marked only once the grid is full
+      cells.forEach(x => x.el.classList.toggle('clash', show && bad.has(x)));
+      if (show) PS.oops();
+      if (!bad.size && full) { cells.forEach(x => x.el.classList.remove('sel')); ctx.solved(); }
     }
     const keyH = e => { if (e.key >= '1' && e.key <= String(n)) place(+e.key); else if (e.key === 'Backspace' || e.key === '0') place(0); };
     document.addEventListener('keydown', keyH); ctx.onLeave(() => document.removeEventListener('keydown', keyH));

@@ -47,14 +47,14 @@ PS.CLUES_ADULT = {
   const alias = (id, base, over, params) => {
     PS.PUZZLES[id] = Object.assign({}, PS.PUZZLES[base], over, { render: (el, ctx) => PS.PUZZLES[base].render(el, Object.assign({}, ctx, { adult: true }, params(ctx.level))) });
   };
-  alias('queensA', 'queens', { name: 'Crown Garden', icon: '👑', colour: '#e8438f', host: 'butterscotch', intro: 'One crown in every row, every column and every colour. No two may touch, not even diagonally.' },
-    lv => ({ size: [6, 7, 8][lv - 1], symbol: '👑', word: 'crown' }));
+  alias('queensA', 'queens', { name: 'Crown Garden', icon: '♛', colour: '#e8438f', host: 'butterscotch', intro: 'One crown in every row, every column and every colour. No two may touch, not even diagonally.' },
+    lv => ({ size: [6, 7, 8][lv - 1], symbol: '♛', word: 'crown' }));
   alias('zipA', 'zip', { name: 'Zip Trail', icon: '🧵', colour: '#2f8cff', host: 'dreamy', intro: 'Join the numbers in order with a single path that visits every square.' },
     lv => ({ size: [6, 7, 8][lv - 1], marks: [7, 8, 9][lv - 1] }));
   alias('tangoA', 'tango', { name: 'Sun and Moon', colour: '#f5a300', host: 'melody' },
     lv => ({ size: lv === 1 ? 6 : 8, extra: lv === 1 ? 8 : lv === 2 ? 4 : 0 }));
   alias('crosswordA', 'crossword', { name: 'Crossword', icon: '✏️', colour: '#ff8a1f', host: 'barnaby', intro: 'Read each clue and fill in the word. Tap a square, then type!' },
-    lv => ({ want: [8, 10, 12][lv - 1] }));
+    lv => ({ want: [14, 20, 26][lv - 1] }));
   alias('scrambleA', 'scramble', { name: 'Anagrams', icon: '🔀', colour: '#8f5cff', host: 'barnaby', intro: 'The letters are jumbled. Work out the word from the clue.' },
     lv => ({ want: [5, 6, 7][lv - 1], span: [[5, 7], [6, 8], [7, 10]][lv - 1] }));
 })();

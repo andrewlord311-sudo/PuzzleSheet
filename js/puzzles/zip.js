@@ -27,7 +27,12 @@ PS.PUZZLES.zip = {
       d.dataset.i = i; grid.appendChild(d); cells.push(d);
     }
     board.append(svg, grid);
-    const side = PS.el('div', 'zp-side', `
+    const side = PS.el('div', 'zp-side', ctx.adult ? `
+      <h3>Rules</h3>
+      <p>Start at <b>1</b> and draw one continuous path.</p>
+      <p>Pass through the numbers in order.</p>
+      <p>Visit <b>every</b> square exactly once.</p>
+      <p class="zp-tip">Drag back, or touch an earlier square, to undo.</p>` : `
       <h3>How to play</h3>
       <p>🌈 Start at <b>1</b></p>
       <p>🌈 Drag your finger to the next square</p>
@@ -40,12 +45,12 @@ PS.PUZZLES.zip = {
     let path = [], dragging = false;
     const adj = (a, b) => Math.abs(Math.floor(a / n) - Math.floor(b / n)) + Math.abs(a % n - b % n) === 1;
     const reached = () => path.filter(i => num[i]).length;
-    const hue = k => Math.round(k / Math.max(1, N - 1) * 300);
+    const hue = k => ctx.adult ? 215 + Math.round(k / Math.max(1, N - 1) * 40) : Math.round(k / Math.max(1, N - 1) * 300);
     function draw() {
       let s = '';
       for (let k = 1; k < path.length; k++) {
         const a = path[k - 1], b = path[k];
-        s += `<line x1="${a % n + .5}" y1="${Math.floor(a / n) + .5}" x2="${b % n + .5}" y2="${Math.floor(b / n) + .5}" stroke="hsl(${hue(k)} 90% 55%)" stroke-width=".5" stroke-linecap="round"/>`;
+        s += `<line x1="${a % n + .5}" y1="${Math.floor(a / n) + .5}" x2="${b % n + .5}" y2="${Math.floor(b / n) + .5}" stroke="hsl(${hue(k)} ${ctx.adult ? 45 : 90}% ${ctx.adult ? 42 : 55}%)" stroke-width=".5" stroke-linecap="round"/>`;
       }
       if (path.length) { const a = path[path.length - 1]; s += `<circle cx="${a % n + .5}" cy="${Math.floor(a / n) + .5}" r=".3" fill="#fff" stroke="hsl(${hue(path.length)} 90% 45%)" stroke-width=".08"/>`; }
       svg.innerHTML = s;

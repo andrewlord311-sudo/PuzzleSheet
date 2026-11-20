@@ -78,9 +78,11 @@ PS.PUZZLES.sudoku9 = {
         if (a === b || a.v !== b.v) return;
         if (a.r === b.r || a.c === b.c || (Math.floor(a.r / 3) === Math.floor(b.r / 3) && Math.floor(a.c / 3) === Math.floor(b.c / 3))) { bad.add(a); bad.add(b); }
       }); });
-      cells.forEach(x => x.el.classList.toggle('clash', bad.has(x) && !x.given));
-      if (bad.size) PS.oops();
-      if (!bad.size && cells.every(x => x.v >= 0)) { cells.forEach(x => x.el.classList.remove('sel', 'same')); ctx.solved(); }
+      // not marked until the grid is full: a wrong number is often a step towards the right one
+      const full = cells.every(x => x.v >= 0), show = full && bad.size > 0;
+      cells.forEach(x => x.el.classList.toggle('clash', show && bad.has(x) && !x.given));
+      if (show) PS.oops();
+      if (!bad.size && full) { cells.forEach(x => x.el.classList.remove('sel', 'same')); ctx.solved(); }
     }
     const keyH = e => { if (e.key >= '1' && e.key <= '9') place(+e.key - 1); else if (e.key === 'Backspace' || e.key === '0') place(-1); };
     document.addEventListener('keydown', keyH); ctx.onLeave(() => document.removeEventListener('keydown', keyH));

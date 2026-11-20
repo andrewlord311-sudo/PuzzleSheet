@@ -555,3 +555,100 @@ h1, h2, h3 { font-family: var(--head); font-weight: 400; margin: 0; }
 .jg-guide .jg-svg { aspect-ratio: 3 / 2; border-radius: 6px; }
 .qn-cell.auto { color: #2b225088; font-size: .7em; }
 .qn-cell.hl { box-shadow: inset 0 0 0 5px #ffb100; animation: pulse .8s infinite; }
+
+/* ---- Greater or Less ---- */
+.su-grid.ft { display: grid; gap: 0; padding: 0; background: none; width: min(92vw, 520px, 62vh); aspect-ratio: 1; }
+.ft-cell { background: #fff; border: 3px solid var(--ink); border-radius: 10px !important; font-family: var(--head); font-size: min(8vw, 44px, 5.4vh); margin: 0 !important; }
+.ft-cell.given { background: color-mix(in srgb, var(--c) 18%, #fff); }
+.ft-cell.sel { box-shadow: inset 0 0 0 5px var(--c); }
+.ft-edge { display: grid; place-items: center; font-family: var(--head); font-size: min(5vw, 26px, 3.4vh); color: var(--c); }
+.ft-edge.bad { color: #e5383b; }
+.cw-adult .cw-block { background: var(--ink); border-radius: 5px; opacity: .88; }
+
+/* =====================================================================
+   The grown-ups' look: calm paper-and-ink, serif headings, no mascots,
+   no rainbow, no bouncing. Applied by body.theme-adult (see app.js).
+   ===================================================================== */
+body.theme-adult {
+  --ink: #1f2430; --paper: #fbfaf7;
+  --head: 'Iowan Old Style', 'Palatino', Georgia, 'Times New Roman', serif;
+  --body: -apple-system, 'SF Pro Text', system-ui, 'Helvetica Neue', sans-serif;
+  --radius: 10px;
+  font-weight: 500;
+  background: #f1eee7;
+}
+.theme-adult h1, .theme-adult h2, .theme-adult h3 { font-weight: 600; letter-spacing: .01em; }
+/* home */
+.theme-adult .rainbow { font-size: clamp(30px, 5vw, 46px); filter: none; letter-spacing: .04em; font-weight: 600; text-transform: none; }
+.theme-adult .rainbow span { color: var(--ink) !important; animation: none; -webkit-text-stroke: 0; }
+.theme-adult .who-btn { background: none; box-shadow: none; border: 1px solid #1f243033; border-radius: 8px; }
+.theme-adult .stars-badge { display: none; }
+.theme-adult .home-top { margin-bottom: 4px; }
+.theme-adult .sheet-info { font-size: 15px; letter-spacing: .04em; text-transform: uppercase; opacity: .6; margin: 6px 0 18px; }
+.theme-adult .sheet-done { animation: none; color: var(--ink); font-size: 22px; font-style: italic; }
+.theme-adult .cards { gap: 16px; }
+.theme-adult .card {
+  text-align: left; padding: 18px 20px 16px 24px; border-radius: 6px; border: 1px solid #1f24301f; border-left: 6px solid var(--c);
+  background: #fff; box-shadow: 0 1px 2px #0000000f, 0 4px 14px #0000000a; animation: none; min-height: 132px;
+}
+.theme-adult .card:active { transform: none; background: #f7f5f0; box-shadow: none; }
+.theme-adult .card-num { position: static; width: auto; height: auto; background: none; color: var(--c); font-family: var(--body); font-weight: 700; font-size: 13px; letter-spacing: .12em; display: block; margin-bottom: 6px; }
+.theme-adult .card-num::before { content: 'No. '; }
+.theme-adult .card-badge { position: absolute; top: 14px; right: 14px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: none; color: var(--c); border: 1px solid var(--c); border-radius: 3px; padding: 1px 7px; transform: none; box-shadow: none; animation: none; }
+.theme-adult .card-name { font-size: 26px; margin-top: 0; }
+.theme-adult .card-level { letter-spacing: .04em; font-size: 14px; opacity: .7; color: var(--ink); margin-top: 4px; }
+.theme-adult .card-state { background: none; color: var(--c); padding: 0; margin-top: 10px; font-family: var(--body); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; border: none; }
+.theme-adult .card.done { opacity: .6; }
+.theme-adult .card.done .card-state { border: none; color: var(--ink); }
+.theme-adult .card.done .card-name { text-decoration: line-through; text-decoration-thickness: 1px; }
+.theme-adult .big-btn { background: var(--ink); color: #fff; font-family: var(--body); font-size: 16px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 14px 34px; border-radius: 6px; box-shadow: none; text-shadow: none; }
+.theme-adult .big-btn:active { transform: none; opacity: .85; }
+.theme-adult .grownups-link { font-size: 13px; }
+/* a puzzle */
+.theme-adult .round-btn { width: 48px; height: 48px; border-radius: 8px; font-size: 22px; border: 1px solid #1f243040; box-shadow: none; background: #fff; }
+.theme-adult .round-btn.hint { width: auto; min-width: 72px; padding: 0 14px; flex-direction: row; gap: 6px; font-size: 0; }
+.theme-adult .round-btn.hint small { font-size: 14px; font-family: var(--body); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.theme-adult #hint-btn { background: #fff; }
+.theme-adult .play-titles h2 { color: var(--ink); -webkit-text-stroke: 0; filter: none; font-size: clamp(26px, 4vw, 36px); }
+.theme-adult .play-level { background: none; color: var(--c); border: 1px solid var(--c); border-radius: 3px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 1px 9px; }
+.theme-adult .play-host { display: none; }
+.theme-adult .play-host-row { margin: 6px auto 10px; }
+.theme-adult .speech { background: none; border: none; box-shadow: none; padding: 4px 2px; font-size: 16px; font-style: italic; opacity: .75; }
+.theme-adult .speech::before { display: none; }
+.theme-adult .speech.pop { animation: none; }
+/* controls inside puzzles */
+.theme-adult .kb { background: none; padding: 4px; }
+.theme-adult .kb-key { border: 1px solid #1f243040; border-radius: 6px; box-shadow: none; font-family: var(--body); font-weight: 600; font-size: 20px; }
+.theme-adult .kb-key:active { transform: none; box-shadow: none; background: color-mix(in srgb, var(--c) 18%, #fff); }
+.theme-adult .su-pick { border: 1px solid #1f243040; border-radius: 8px; box-shadow: none; font-family: var(--head); font-size: 30px; width: 64px; height: 64px; }
+.theme-adult .su-pick:active { transform: none; background: color-mix(in srgb, var(--c) 18%, #fff); }
+.theme-adult .su-cell, .theme-adult .ft-cell { font-family: var(--head); }
+.theme-adult .qn-rules, .theme-adult .zp-side, .theme-adult .tg-rules { background: #fff; border: 1px solid #1f243026; border-top: 4px solid var(--c); border-radius: 4px; box-shadow: none; font-size: 17px; }
+.theme-adult .qn-rules h3, .theme-adult .zp-side h3, .theme-adult .tg-rules h3 { color: var(--ink); font-size: 20px; text-transform: none; }
+.theme-adult .qn-grid, .theme-adult .ws-grid { border-radius: 4px; border-width: 3px; box-shadow: none; }
+.theme-adult .qn-cell { font-size: min(8vw, 44px, 5.5vh); color: var(--ink); }
+.theme-adult .tg-cell { border-radius: 4px; font-family: var(--body); font-size: min(8vw, 52px, 6vh); }
+.theme-adult .tg-cell[data-v="0"] { color: #b7791f; }
+.theme-adult .tg-cell[data-v="1"] { color: #2c3e73; }
+.theme-adult .cw-grid .cw-cell { border-radius: 2px; border-width: 2px; }
+.theme-adult .cw-grid { gap: 2px; }
+.theme-adult .cw-banner { background: none; color: var(--ink); border: none; border-left: 4px solid var(--c); border-radius: 0; box-shadow: none; text-align: left; font-family: var(--head); }
+.theme-adult .cw-clues { background: #fff; border: 1px solid #1f243026; border-radius: 4px; box-shadow: none; }
+.theme-adult .cw-clues h3 { color: var(--ink); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
+.theme-adult .cw-clue.on { background: color-mix(in srgb, var(--c) 14%, #fff); }
+.theme-adult .cw-cell.in-word { background: color-mix(in srgb, var(--c) 14%, #fff); }
+.theme-adult .cw-cell.at { background: color-mix(in srgb, var(--c) 34%, #fff); }
+.theme-adult .cw-cell.right { background: #e3efe6; border-color: #3f6b5a; }
+/* finished */
+.theme-adult .overlay { background: #1f2430b3; }
+.theme-adult .cel-card { background: #fbfaf7; border: 1px solid #1f243033; border-top: 5px solid var(--c); border-radius: 6px; box-shadow: 0 20px 50px #0004; animation: none; }
+.theme-adult .cel-host { display: none; }
+.theme-adult .cel-card h2 { color: var(--ink); -webkit-text-stroke: 0; filter: none; font-size: 34px; font-style: italic; }
+.theme-adult .cel-card h3 { font-family: var(--body); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; opacity: .65; }
+.theme-adult .cel-choices button { border: 1px solid #1f243040; border-radius: 6px; box-shadow: none; background: #fff; font-size: 16px; padding: 10px 12px; }
+.theme-adult .cel-choices button small { font-size: 14px; font-family: var(--body); font-weight: 600; }
+.theme-adult .cel-choices button.on { background: color-mix(in srgb, var(--c) 18%, #fff); border-color: var(--c); }
+.theme-adult .gu-table th { font-family: var(--body); }
+.theme-adult .card-badge { left: auto; right: 14px; width: auto; height: auto; line-height: 1.5; }
+.theme-adult .who-btn span { display: none; }
+.theme-adult .who-btn small { font-size: 13px; font-family: var(--body); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }

@@ -10,15 +10,14 @@ PS.PUZZLES.crossword = {
     const want = ctx.want || [6, 8, 10][level - 1];
     const FAV = ['Guinea pigs', 'Music', 'Christmas', 'Wizard school', 'On stage', 'Pop star', 'Chocolate', 'Drawing and colouring'];
     let bank;
-    if (ctx.adult) {    // grown-ups: two themes mixed, longer words, a bigger grid
-      const names = PS.shuffle(rng, Object.keys(PS.CLUES_ADULT)).slice(0, 2);
-      bank = names.flatMap(t => PS.CLUES_ADULT[t]).filter(([w]) => w.length <= 8);
+    if (ctx.adult) {    // grown-ups: a big mixed word list and a fuller grid (see PS.crosswordDense)
+      bank = PS.CLUES_CROSS;
     } else {
       const themeName = PS.pick(rng, rng() < 0.75 ? FAV : Object.keys(PS.CLUES));
       bank = PS.CLUES[themeName].filter(([w]) => level > 1 || w.length <= 7);
     }
 
-    const layout = PS.crosswordLayout(rng, bank, want, !!ctx.adult);
+    const layout = ctx.adult ? PS.crosswordDense(rng, bank, want, [12, 13, 15][level - 1], [12, 13, 13][level - 1]) : PS.crosswordLayout(rng, bank, want, false);
     const { words, W, H } = layout;
     // cell map
     const cells = {};   // "r,c" -> { ch, words: [] , el, val }
@@ -40,6 +39,7 @@ PS.PUZZLES.crossword = {
     const banner = PS.el('div', 'cw-banner');
     const board = PS.el('div', 'cw-grid');
     board.style.setProperty('--w', W); board.style.setProperty('--h', H);
+    if (ctx.adult) board.classList.add('cw-adult');
     for (let r = 0; r < H; r++) for (let c = 0; c < W; c++) {
       const k = r + ',' + c, cell = cells[k];
       const d = PS.el('div', cell ? 'cw-cell' : 'cw-block');
@@ -212,4 +212,69 @@ PS.crosswordLayout = function (rng, bank, want, big) {
   }
   // nothing fitted the size limit: try again with fewer words
   return best || (want > 3 ? PS.crosswordLayout(rng, bank, want - 2, big) : null);
+};
+
+// A fuller, more interlocked crossword for grown-ups: keeps adding whichever word crosses the most
+// letters already on the grid. Returns { words: [{w, clue, r, c, dir}], W, H } like PS.crosswordLayout.
+PS.crosswordDense = function (rng, bank, target, maxW, maxH, ms = 450) {
+  let best = null;
+  const t0 = Date.now();
+  for (let attempt = 0; attempt < 12 && (attempt < 1 || Date.now() - t0 < ms); attempt++) {
+    const pool = PS.shuffle(rng, bank).slice(0, 130);
+    const grid = new Map(), placed = [], used = new Set();
+    const at = (r, c) => grid.get(r + ',' + c);
+    let bb = null;
+    const fits = (w, r, c, dir) => {
+      const dr = dir === 'D' ? 1 : 0, dc = dir === 'A' ? 1 : 0;
+      if (at(r - dr, c - dc) || at(r + dr * w.length, c + dc * w.length)) return -1;
+      let cross = 0;
+      for (let i = 0; i < w.length; i++) {
+        const rr = r + dr * i, cc = c + dc * i, g = at(rr, cc);
+        if (g) { if (g.ch !== w[i] || g[dir]) return -1; cross++; }
+        else if (at(rr + dc, cc + dr) || at(rr - dc, cc - dr)) return -1;
+      }
+      return cross;
+    };
+    const box = (w, r, c, dir) => {
+      const r1 = r + (dir === 'D' ? w.length - 1 : 0), c1 = c + (dir === 'A' ? w.length - 1 : 0);
+      return bb ? { r0: Math.min(bb.r0, r), r1: Math.max(bb.r1, r1), c0: Math.min(bb.c0, c), c1: Math.max(bb.c1, c1) } : { r0: r, r1, c0: c, c1 };
+    };
+    const put = (w, clue, r, c, dir) => {
+      bb = box(w, r, c, dir);
+      for (let i = 0; i < w.length; i++) { const k = (r + (dir === 'D' ? i : 0)) + ',' + (c + (dir === 'A' ? i : 0)); const g = grid.get(k) || { ch: w[i] }; g[dir] = true; grid.set(k, g); }
+      placed.push({ w, clue, r, c, dir }); used.add(w);
+    };
+    const seeds = pool.filter(([w]) => w.length >= 7 && w.length <= maxW);
+    const [w0, c0] = PS.pick(rng, seeds.length ? seeds : pool);
+    put(w0, c0, 0, 0, 'A');
+    while (placed.length < target) {
+      let top = [], topScore = -1e9;
+      for (const [w, clue] of pool) {
+        if (used.has(w)) continue;
+        for (const [k, g] of grid) {
+          const [gr, gc] = k.split(',').map(Number);
+          for (let i = 0; i < w.length; i++) {
+            if (w[i] !== g.ch) continue;
+            for (const dir of ['A', 'D']) {
+              if (g[dir]) continue;
+              const r = dir === 'D' ? gr - i : gr, c = dir === 'A' ? gc - i : gc;
+              const x = fits(w, r, c, dir); if (x < 1) continue;
+              const b = box(w, r, c, dir), bw = b.c1 - b.c0 + 1, bh = b.r1 - b.r0 + 1;
+              if (bw > maxW || bh > maxH) continue;
+              const sc = x * 10 - (bw * bh) / 12 + w.length * 0.4 + rng() * 3;
+              if (sc > topScore) { topScore = sc; top = [{ w, clue, r, c, dir }]; }
+            }
+          }
+        }
+      }
+      if (!top.length) break;
+      const o = top[0]; put(o.w, o.clue, o.r, o.c, o.dir);
+    }
+    const rs = [...grid.keys()].map(k => +k.split(',')[0]), cs = [...grid.keys()].map(k => +k.split(',')[1]);
+    const r0 = Math.min(...rs), cm = Math.min(...cs), W = Math.max(...cs) - cm + 1, H = Math.max(...rs) - r0 + 1;
+    const crossings = [...grid.values()].filter(g => g.A && g.D).length;
+    const score = placed.length * 10 + crossings * 3 - W * H * 0.2;
+    if (!best || score > best.score) best = { score, W, H, crossings, words: placed.map(p => ({ ...p, r: p.r - r0, c: p.c - cm })) };
+  }
+  return best;
 };

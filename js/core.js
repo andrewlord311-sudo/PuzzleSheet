@@ -38,7 +38,7 @@ PS.starBalance = () => (PS.load(PS.REWARDS_KEY, {}).stars || 0) - (PS.load('ttg_
 
 // ---- Levels (1 to 3 per puzzle), moved by her "how hard was it?" answer ----
 PS.START_LEVEL = { wordsearch: 2, crossword: 2, code: 2, sudoku: 1, nonogram: 1, music: 1,
-  queens: 1, zip: 1, tango: 1, scramble: 2, ladder: 2, beats: 1 };   // anything not listed starts at 1
+  queens: 1, crosswordA: 2, zip: 1, tango: 1, scramble: 2, ladder: 2, beats: 1 };   // anything not listed starts at 1
 // Each player keeps their own sheet, votes and levels. The first player (Maya) keeps the
 // original key names, so nothing she has already done is lost.
 PS.player = 'maya';

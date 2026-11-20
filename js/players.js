@@ -10,9 +10,9 @@ PS.PLAYERS = {
     pairs: [['queens', 'zip'], ['tango', 'scramble'], ['ladder', 'beats']],
   },
   grown: {
-    name: 'Grown-ups', face: '☕', colour: '#8f5cff', host: 'harmony', spoken: false, garden: false,
+    name: 'Grown-ups', face: '☕', colour: '#8f5cff', host: 'harmony', spoken: false, garden: false, adult: true,
     blurb: 'Puzzles to linger over',
-    core: ['sudoku9', 'crosswordA', 'cryptogram', 'tangoA'],
+    core: ['sudoku9', 'crosswordA', 'futoshiki', 'tangoA'],
     pairs: [['queensA', 'zipA'], ['kenken', 'scrambleA']],
   },
   theo: {
@@ -23,6 +23,10 @@ PS.PLAYERS = {
   },
 };
 PS.cfg = () => PS.PLAYERS[PS.player] || PS.PLAYERS.maya;
+PS.adult = () => !!PS.cfg().adult;   // the grown-ups' edition looks and sounds different: no mascots, rainbow or fanfares
+// muted accents for the grown-ups' screens (one per puzzle, steady from sheet to sheet)
+PS.ADULT_ACCENTS = ['#34506e', '#7a4f33', '#3f6b5a', '#6a4c7d', '#8a6a2f', '#4a5a66', '#7a3b4a', '#2f5d6e'];
+PS.accent = g => { let h = 0; for (const ch of String(g)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PS.ADULT_ACCENTS[h % PS.ADULT_ACCENTS.length]; };
 PS.setPlayer = id => { if (PS.PLAYERS[id]) { PS.player = id; PS.save('ps_player', id); } };
 // The saved player. Anyone who used the app before it had players is Maya, with all her stars and votes intact.
 PS.savedPlayer = () => {
