@@ -1,6 +1,6 @@
 // Works offline once opened: serve from the cache, refresh it in the background.
 // Bump VERSION when files are added.
-const VERSION = 'ps-v1';
+const VERSION = 'ps-v2';
 const FILES = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'art/mascots.js', 'art/pigs.js', 'art/icon-180.png',

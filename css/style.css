@@ -61,7 +61,7 @@ h1, h2, h3 { font-family: var(--head); font-weight: 400; margin: 0; }
   animation: cardIn .45s cubic-bezier(.2, 1.6, .4, 1) both; transition: transform .12s;
 }
 .card:active { transform: translateY(5px) scale(.98); box-shadow: 0 3px 0 color-mix(in srgb, var(--c) 70%, #000); }
-@keyframes cardIn { from { opacity: 0; transform: scale(.6) rotate(-6deg); } }
+@keyframes cardIn { from { transform: scale(.85) rotate(-4deg); } }
 .card-num { position: absolute; top: 10px; left: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--c); color: #fff; font-family: var(--head); font-size: 22px; display: grid; place-items: center; }
 .card-host { height: 92px; display: flex; justify-content: center; }
 .card-host svg, .card-host .pig-tint { height: 92px; width: auto; }
@@ -287,7 +287,7 @@ h1, h2, h3 { font-family: var(--head); font-weight: 400; margin: 0; }
   .ws-grid { width: min(92vw, 780px, 72vh); }
   .ws-word { font-size: 26px; }
   .ws-theme { font-size: 30px; }
-  .cw-grid { --s: min(calc(800px / var(--w)), calc((100vh - 300px) / var(--h)), 74px); }
+  .cw-grid { --s: min(calc(720px / var(--w)), calc((100vh - 300px) / var(--h)), 74px); }
   .cw-right { width: min(520px, 92vw); }
   .cw-clue { font-size: 21px; }
   .cw-banner { font-size: 24px; max-width: 760px; }
