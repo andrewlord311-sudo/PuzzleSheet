@@ -4,7 +4,7 @@ const fs = require('fs'), vm = require('vm'), path = require('path');
 const root = path.join(__dirname, '..');
 const ctx = { window: {}, document: {}, console, localStorage: { getItem: () => null, setItem() {} } };
 vm.createContext(ctx);
-for (const f of ['js/core.js', 'js/words.js', 'js/puzzles/sudoku.js', 'js/puzzles/nonogram.js', 'js/puzzles/crossword.js', 'js/puzzles/queens.js', 'js/puzzles/zip.js', 'js/puzzles/tango.js', 'js/puzzles/ladder.js', 'js/puzzles/beats.js'])
+for (const f of ['js/core.js', 'js/words.js', 'js/puzzles/sudoku.js', 'js/puzzles/nonogram.js', 'js/puzzles/crossword.js', 'js/puzzles/queens.js', 'js/puzzles/zip.js', 'js/puzzles/tango.js', 'js/puzzles/ladder.js', 'js/puzzles/beats.js', 'js/puzzles/sudoku4.js', 'js/puzzles/maze.js', 'js/puzzles/dots.js'])
   vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8').replace("'use strict';", '') + '\nthis.PS = PS;', ctx, { filename: f });
 const PS = ctx.PS;
 let bad = 0;
@@ -39,5 +39,9 @@ for (const n of [4, 5, 6]) for (let i = 0; i < 20; i++) {
 for (const [n, extra] of [[4, 0], [6, 6], [6, 0]]) { let clues = []; for (let i = 0; i < 10; i++) { const t = PS.tangoMake(PS.rng(i + 5), n, extra); const c = PS.tangoSolve(n, t.fixed, t.edges, 2).count; if (c !== 1) { bad++; console.log('TANGO not unique'); } clues.push(t.fixed.filter(v => v >= 0).length + t.edges.length); } console.log('tango', n, 'extra', extra, 'clues', Math.min(...clues), '-', Math.max(...clues)); }
 for (const [len, mids] of [[3, 2], [3, 3], [4, 3]]) { let fail = 0; for (let i = 0; i < 50; i++) if (!PS.ladderMake(PS.rng(i), len, mids)) fail++; if (fail) { bad++; console.log('LADDER fails', len, mids, fail); } }
 for (const lv of [1, 2, 3]) for (let i = 0; i < 30; i++) { const { bars } = PS.beatsMake(PS.rng(i), lv); if (bars.length !== [4, 5, 6][lv - 1] || bars.some(b => b.sol.reduce((s, k) => s + PS.NOTES[k].beats, 0) !== b.T)) { bad++; console.log('BEATS bad'); } }
+for (let i = 0; i < 40; i++) { const r = PS.rng(i), sol = PS.sudoku4(r); for (const g of [10, 8, 6]) { const h = PS.sudoku4Holes(r, sol, g); if (PS.sudoku4Count(h.map(x => x.slice())) !== 1) { bad++; console.log('SUDOKU4 not unique'); } } }
+for (const n of [4, 5, 7]) for (let i = 0; i < 30; i++) { const c = PS.mazeMake(PS.rng(i), n), p = PS.mazePath(c, n); if (p[0] !== 0 || p[p.length - 1] !== n * n - 1) { bad++; console.log('MAZE bad'); } }
+for (const p of PS.DOT_PICTURES) if (p.pts.some(q => q[0] < 0 || q[0] > 100 || q[1] < 0 || q[1] > 100 || isNaN(q[0]))) { bad++; console.log('DOTS out of range', p.name); }
+console.log('dots per picture:', PS.DOT_PICTURES.map(p => p.pts.length).join(' '));
 console.log('new puzzles checked in', Date.now() - t0, 'ms');
 console.log(bad ? `${bad} problems` : 'all good');

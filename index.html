@@ -15,9 +15,17 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- Who is playing? -->
+  <section id="screen-who" class="screen">
+    <h1 class="rainbow who-title" aria-label="Puzzle Sheet"><span>P</span><span>u</span><span>z</span><span>z</span><span>l</span><span>e</span> <span>S</span><span>h</span><span>e</span><span>e</span><span>t</span></h1>
+    <h2 class="who-q">Who is playing?</h2>
+    <div id="who-cards" class="who-cards"></div>
+  </section>
+
   <!-- Home: today's sheet -->
   <section id="screen-home" class="screen active">
     <header class="home-top">
+      <button id="who-btn" class="who-btn" aria-label="Change player"></button>
       <h1 class="rainbow" aria-label="Puzzle Sheet"><span>P</span><span>u</span><span>z</span><span>z</span><span>l</span><span>e</span> <span>S</span><span>h</span><span>e</span><span>e</span><span>t</span></h1>
       <a id="garden-link" class="stars-badge" href="#"><span id="home-stars">⭐ 0</span><small>Guinea Pig Garden</small></a>
     </header>
@@ -35,6 +43,7 @@
     <header class="play-top">
       <button id="back-btn" class="round-btn" aria-label="Back to the sheet">⬅</button>
       <div class="play-titles"><h2 id="play-title"></h2><span id="play-level" class="play-level"></span></div>
+      <button id="say-btn" class="round-btn" aria-label="Read it to me" hidden>🔊<small>Listen</small></button>
       <button id="hint-btn" class="round-btn hint" aria-label="Hint">💡<small>Hint</small></button>
     </header>
     <div class="play-host-row">
@@ -48,7 +57,7 @@
   <section id="screen-grownups" class="screen">
     <header class="play-top">
       <button id="gu-back" class="round-btn" aria-label="Back">⬅</button>
-      <div class="play-titles"><h2>What she likes</h2></div>
+      <div class="play-titles"><h2 id="gu-title">What she likes</h2></div>
     </header>
     <div id="gu-body" class="gu-body"></div>
   </section>
@@ -80,6 +89,7 @@
   <script src="art/mascots.js"></script>
   <script src="art/pigs.js"></script>
   <script src="js/core.js"></script>
+  <script src="js/players.js"></script>
   <script src="js/words.js"></script>
   <script src="js/puzzles/wordsearch.js"></script>
   <script src="js/puzzles/crossword.js"></script>
@@ -93,6 +103,12 @@
   <script src="js/puzzles/scramble.js"></script>
   <script src="js/puzzles/ladder.js"></script>
   <script src="js/puzzles/beats.js"></script>
+  <script src="js/puzzles/count.js"></script>
+  <script src="js/puzzles/blocks.js"></script>
+  <script src="js/puzzles/next.js"></script>
+  <script src="js/puzzles/sudoku4.js"></script>
+  <script src="js/puzzles/dots.js"></script>
+  <script src="js/puzzles/maze.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

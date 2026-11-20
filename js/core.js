@@ -38,7 +38,7 @@ PS.starBalance = () => (PS.load(PS.REWARDS_KEY, {}).stars || 0) - (PS.load('ttg_
 
 // ---- Levels (1 to 3 per puzzle), moved by her "how hard was it?" answer ----
 PS.START_LEVEL = { wordsearch: 2, crossword: 2, code: 2, sudoku: 1, nonogram: 1, music: 1,
-  queens: 1, zip: 1, tango: 1, scramble: 2, ladder: 2, beats: 1 };
+  queens: 1, zip: 1, tango: 1, scramble: 2, ladder: 2, beats: 1 };   // anything not listed starts at 1
 // Each player keeps their own sheet, votes and levels. The first player (Maya) keeps the
 // original key names, so nothing she has already done is lost.
 PS.player = 'maya';
@@ -65,26 +65,25 @@ PS.weight = g => {
 // ---- The sheet: six puzzles ----
 // Two "spotlight" puzzles are on the sheet every time for 4 sheets running, then the next
 // pair takes over (and the pair before joins the regular mix). The other four are picked by
-// her votes, each kind at most twice. The spotlight pairs keep cycling for ever.
+// her votes, each kind once where there is enough choice. The spotlight pairs keep cycling for ever.
 PS.SHEET_SIZE = 6;
 PS.SPOTLIGHT_SHEETS = 4;
-PS.ORIGINAL = ['wordsearch', 'crossword', 'sudoku', 'nonogram', 'code', 'music'];
-PS.NEW_PAIRS = [['queens', 'zip'], ['tango', 'scramble'], ['ladder', 'beats']];
 PS.rotation = () => PS.load(PS.K('ps_rot'), { pair: 0, n: 0, introduced: [] });
 PS.makeSheet = () => {
   const old = PS.load(PS.K('ps_sheet'), { no: 0 });
-  const rot = PS.rotation();
-  if (rot.n >= PS.SPOTLIGHT_SHEETS) {
-    rot.introduced = [...new Set([...rot.introduced, ...PS.NEW_PAIRS[rot.pair]])];
-    rot.pair = (rot.pair + 1) % PS.NEW_PAIRS.length; rot.n = 0;
+  const rot = PS.rotation(), cfg = PS.cfg(), pairs = cfg.pairs || [];
+  if (pairs.length && rot.n >= PS.SPOTLIGHT_SHEETS) {
+    rot.introduced = [...new Set([...rot.introduced, ...pairs[rot.pair % pairs.length]])];
+    rot.pair = (rot.pair + 1) % pairs.length; rot.n = 0;
   }
   rot.n++; PS.save(PS.K('ps_rot'), rot);
-  const feat = PS.NEW_PAIRS[rot.pair].filter(g => PS.PUZZLES[g]);
-  const genres = [...PS.ORIGINAL, ...rot.introduced].filter(g => PS.PUZZLES[g] && !feat.includes(g));
+  const feat = pairs.length ? pairs[rot.pair % pairs.length].filter(g => PS.PUZZLES[g]) : [];
+  const genres = [...cfg.core, ...rot.introduced].filter(g => PS.PUZZLES[g] && !feat.includes(g));
   const count = {};
   const items = feat.map(g => ({ g, seed: PS.newSeed(), done: false, hearts: null, feat: true }));
   while (items.length < PS.SHEET_SIZE) {
-    const cands = genres.filter(g => (count[g] || 0) < 2);
+    const cap = Math.max(1, Math.ceil((PS.SHEET_SIZE - feat.length) / genres.length));
+    const cands = genres.filter(g => (count[g] || 0) < cap);
     const ws = cands.map(g => PS.weight(g) * ((count[g] || 0) ? 0.35 : 1));
     let x = Math.random() * ws.reduce((a, b) => a + b, 0), i = 0;
     while (x > ws[i] && i < ws.length - 1) { x -= ws[i]; i++; }

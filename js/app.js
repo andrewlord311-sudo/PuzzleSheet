@@ -16,6 +16,11 @@
     const made = new Date(sheet.made);
     $('sheet-info').textContent = `Sheet ${sheet.no} · ${made.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}`;
     $('home-stars').textContent = '⭐ ' + PS.starBalance();
+    const cfg = PS.cfg();
+    $('who-btn').innerHTML = `<span>${cfg.face}</span><small>${cfg.name}</small>`;
+    const gl = $('garden-link');
+    gl.href = cfg.garden ? PS.GARDEN_URL : '#'; gl.classList.toggle('nolink', !cfg.garden);
+    gl.querySelector('small').textContent = cfg.garden ? 'Guinea Pig Garden' : 'My stars';
     const grid = $('cards'); grid.innerHTML = '';
     sheet.items.forEach((it, i) => {
       const P = PS.PUZZLES[it.g];
@@ -53,6 +58,7 @@
     $('play-title').innerHTML = `${P.icon} ${P.name}`;
     $('play-level').textContent = ['Level 1', 'Level 2', 'Level 3'][level - 1];
     $('play-host').innerHTML = PS.host(P.host);
+    $('say-btn').hidden = !PS.speakOn();
     say(P.intro);
     const body = $('play-body');
     body.innerHTML = '';
@@ -67,12 +73,14 @@
     show('screen-play');
   }
   let sayTimer = null;
+  let lastSaid = '';
   function say(text) {
     const b = $('play-say');
-    b.textContent = text;
+    b.textContent = text; lastSaid = text; PS.speak(text);
     b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
     clearTimeout(sayTimer);
   }
+  $('say-btn').addEventListener('click', () => { PS.tap(); PS.speak(lastSaid); });
   $('hint-btn').addEventListener('click', () => {
     if (!current || current.solved || !current.api.hint) return;
     PS.tap();
@@ -92,6 +100,7 @@
     ov.style.setProperty('--c', P.colour);
     $('cel-host').innerHTML = PS.host(P.host, 'cheer');
     $('cel-title').textContent = PS.pick(Math.random, ['You did it!', 'Amazing!', 'Puzzle solved!', 'Brilliant work!', 'Hooray!']);
+    setTimeout(() => PS.speak($('cel-title').textContent + ' Did you like it? Pick your hearts. Then tell me how hard it was.'), 600);
     $('cel-msg').textContent = msg || '';
     $('cel-stars').textContent = `+${stars} ⭐ for the Guinea Pig Garden`;
     let hearts = null, feel = null;
@@ -130,7 +139,9 @@
   // ---------------- Grown-ups ----------------
   function renderGrownups() {
     const votes = PS.votes();
-    const rows = Object.entries(PS.PUZZLES).map(([g, P]) => {
+    const mine = new Set([...PS.cfg().core, ...(PS.cfg().pairs || []).flat()]);
+    $('gu-title').textContent = `What ${PS.cfg().name} likes`;
+    const rows = Object.entries(PS.PUZZLES).filter(([g]) => mine.has(g)).map(([g, P]) => {
       const vs = votes.filter(v => v.g === g);
       const avg = vs.length ? vs.reduce((s, v) => s + v.h, 0) / vs.length : null;
       const f = k => vs.filter(v => v.d === k).length;
@@ -156,7 +167,22 @@
   }
   $('grownups-link').addEventListener('click', e => { e.preventDefault(); renderGrownups(); });
   $('gu-back').addEventListener('click', renderHome);
-  $('garden-link').href = PS.GARDEN_URL;
+  $('garden-link').addEventListener('click', e => { if (!PS.cfg().garden) e.preventDefault(); });
+
+  // ---------------- Who is playing? ----------------
+  function renderWho() {
+    leave();
+    const box = $('who-cards'); box.innerHTML = '';
+    Object.entries(PS.PLAYERS).forEach(([id, p], i) => {
+      const b = PS.el('button', 'who-card');
+      b.style.setProperty('--c', p.colour); b.style.animationDelay = (i * 0.08) + 's';
+      b.innerHTML = `<div class="who-face">${p.face}</div><div class="who-name">${p.name}</div><div class="who-blurb">${p.blurb}</div>`;
+      b.addEventListener('click', () => { PS.tap(); PS.setPlayer(id); renderHome(); });
+      box.appendChild(b);
+    });
+    show('screen-who');
+  }
+  $('who-btn').addEventListener('click', () => { PS.tap(); renderWho(); });
 
   // the first touch anywhere unlocks sound
   document.addEventListener('pointerdown', () => PS.audio(), { once: true });
@@ -164,9 +190,11 @@
   try { new FontFace('Noto Music', 'url(art/fonts/noto-music.woff2)').load().then(f => document.fonts.add(f)); } catch {}
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 
-  renderHome();
+  const saved = PS.savedPlayer();
+  if (saved) { PS.player = saved; renderHome(); } else renderWho();
   // ?play=<kind> opens a fresh puzzle of that kind (for testing)
   const q = new URLSearchParams(location.search);
+  if (q.get('as') && PS.PLAYERS[q.get('as')]) { PS.player = q.get('as'); }
   if (q.get('play') && PS.PUZZLES[q.get('play')]) {
     const s = PS.sheet(); s.items[0] = { g: q.get('play'), seed: q.get('seed') ? +q.get('seed') : PS.newSeed(), done: false, hearts: null };
     if (q.get('level')) { const L = PS.load(PS.K('ps_levels'), {}); L[q.get('play')] = +q.get('level'); PS.save(PS.K('ps_levels'), L); }
