@@ -7,12 +7,18 @@ PS.PUZZLES.crossword = {
   intro: 'Read each clue and fill in the word. Tap a square, then type!',
   render(el, ctx) {
     const { rng, level } = ctx;
-    const want = [6, 8, 10][level - 1];
+    const want = ctx.want || [6, 8, 10][level - 1];
     const FAV = ['Guinea pigs', 'Music', 'Christmas', 'Wizard school', 'On stage', 'Pop star', 'Chocolate', 'Drawing and colouring'];
-    const themeName = PS.pick(rng, rng() < 0.75 ? FAV : Object.keys(PS.CLUES));
-    const bank = PS.CLUES[themeName].filter(([w]) => level > 1 || w.length <= 7);
+    let bank;
+    if (ctx.adult) {    // grown-ups: two themes mixed, longer words, a bigger grid
+      const names = PS.shuffle(rng, Object.keys(PS.CLUES_ADULT)).slice(0, 2);
+      bank = names.flatMap(t => PS.CLUES_ADULT[t]).filter(([w]) => w.length <= 8);
+    } else {
+      const themeName = PS.pick(rng, rng() < 0.75 ? FAV : Object.keys(PS.CLUES));
+      bank = PS.CLUES[themeName].filter(([w]) => level > 1 || w.length <= 7);
+    }
 
-    const layout = PS.crosswordLayout(rng, bank, want);
+    const layout = PS.crosswordLayout(rng, bank, want, !!ctx.adult);
     const { words, W, H } = layout;
     // cell map
     const cells = {};   // "r,c" -> { ch, words: [] , el, val }
@@ -140,10 +146,10 @@ PS.PUZZLES.crossword = {
 
 // Lay words out crossing each other, best of many tries.
 // Returns { words: [{w, clue, r, c, dir}], W, H }.
-PS.crosswordLayout = function (rng, bank, want) {
+PS.crosswordLayout = function (rng, bank, want, big) {
   let best = null;
   for (let attempt = 0; attempt < 150; attempt++) {
-    const pool = PS.shuffle(rng, bank).slice(0, want + 4).sort((a, b) => b[0].length - a[0].length + (rng() - 0.5) * 3);
+    const pool = PS.shuffle(rng, bank).slice(0, want + (big ? 30 : 4)).sort((a, b) => b[0].length - a[0].length + (rng() - 0.5) * 3);
     const grid = new Map();   // "r,c" -> { ch, A: bool, D: bool }
     const placed = [];
     const at = (r, c) => grid.get(r + ',' + c);
@@ -160,8 +166,15 @@ PS.crosswordLayout = function (rng, bank, want) {
       }
       return cross;
     };
+    const maxW = big ? 13 : 12, maxH = big ? 11 : 9;
+    let bb = null;     // the box the words fill so far
+    const grown = (w, r, c, dir) => {
+      const r1 = r + (dir === 'D' ? w.length - 1 : 0), c1 = c + (dir === 'A' ? w.length - 1 : 0);
+      return { r0: Math.min(bb.r0, r), r1: Math.max(bb.r1, r1), c0: Math.min(bb.c0, c), c1: Math.max(bb.c1, c1) };
+    };
     const put = (w, clue, r, c, dir) => {
       const dr = dir === 'D' ? 1 : 0, dc = dir === 'A' ? 1 : 0;
+      bb = bb ? grown(w, r, c, dir) : { r0: r, r1: r + dr * (w.length - 1), c0: c, c1: c + dc * (w.length - 1) };
       for (let i = 0; i < w.length; i++) {
         const k = (r + dr * i) + ',' + (c + dc * i);
         const g = grid.get(k) || { ch: w[i] }; g[dir] = true; grid.set(k, g);
@@ -181,7 +194,7 @@ PS.crosswordLayout = function (rng, bank, want) {
             if (g[dir]) continue;
             const r = dir === 'D' ? gr - i : gr, c = dir === 'A' ? gc - i : gc;
             const x = fits(w, r, c, dir);
-            if (x > 0) opts.push({ r, c, dir, x });
+            if (x > 0) { const b = grown(w, r, c, dir); if (b.r1 - b.r0 + 1 <= maxH && b.c1 - b.c0 + 1 <= maxW) opts.push({ r, c, dir, x }); }
           }
         }
       }
@@ -193,10 +206,10 @@ PS.crosswordLayout = function (rng, bank, want) {
     const rs = [...grid.keys()].map(k => +k.split(',')[0]), cs = [...grid.keys()].map(k => +k.split(',')[1]);
     const r0 = Math.min(...rs), c0m = Math.min(...cs);
     const W = Math.max(...cs) - c0m + 1, H = Math.max(...rs) - r0 + 1;
-    if (W > 12 || H > 9) continue;
-    const score = placed.length * 100 - W * H * 2 - Math.abs(W - H * 1.3) * 4;
+    if (W > (big ? 13 : 12) || H > (big ? 11 : 9)) continue;
+    const score = placed.length * 100 - W * H * (big ? 4 : 2) - Math.abs(W - H * 1.3) * 4;
     if (!best || score > best.score) best = { score, W, H, words: placed.map(p => ({ ...p, r: p.r - r0, c: p.c - c0m })) };
   }
   // nothing fitted the size limit: try again with fewer words
-  return best || (want > 3 ? PS.crosswordLayout(rng, bank, want - 2) : null);
+  return best || (want > 3 ? PS.crosswordLayout(rng, bank, want - 2, big) : null);
 };

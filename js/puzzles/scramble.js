@@ -7,11 +7,12 @@ PS.PUZZLES.scramble = {
   intro: 'The letters got jumbled! Read the clue and tap them in the right order.',
   render(el, ctx) {
     const { rng, level } = ctx;
-    const want = [4, 5, 6][level - 1], [lo, hi] = [[3, 5], [4, 7], [5, 9]][level - 1];
+    const want = ctx.want || [4, 5, 6][level - 1], [lo, hi] = ctx.span || [[3, 5], [4, 7], [5, 9]][level - 1];
     const FAV = ['Guinea pigs', 'Music', 'Christmas', 'Wizard school', 'On stage', 'Pop star', 'Chocolate', 'Drawing and colouring'];
     // words from several themes (mostly her favourites), each a fair length
     const pool = [];
-    PS.shuffle(rng, rng() < 0.8 ? FAV : Object.keys(PS.CLUES)).slice(0, 4).forEach(t => PS.CLUES[t].forEach(([w, clue]) => { if (w.length >= lo && w.length <= hi && !/[^A-Z]/.test(w)) pool.push({ w, clue }); }));
+    const banks = ctx.adult ? Object.values(PS.CLUES_ADULT) : PS.shuffle(rng, rng() < 0.8 ? FAV : Object.keys(PS.CLUES)).slice(0, 4).map(t => PS.CLUES[t]);
+    banks.forEach(b => b.forEach(([w, clue]) => { if (w.length >= lo && w.length <= hi && !/[^A-Z]/.test(w)) pool.push({ w, clue }); }));
     const seen = new Set(), words = [];
     for (const x of PS.shuffle(rng, pool)) { if (!seen.has(x.w) && words.length < want) { seen.add(x.w); words.push(x); } }
 

@@ -7,9 +7,9 @@ PS.PUZZLES.zip = {
   intro: 'Start at 1 and draw one path through the numbers in order. Cover every square!',
   render(el, ctx) {
     const { rng, level } = ctx;
-    const n = [4, 5, 6][level - 1], N = n * n;
+    const n = ctx.size || [4, 5, 6][level - 1], N = n * n;
     const sol = PS.zipPath(rng, n);
-    const marks = PS.zipMarks(rng, N, [6, 6, 7][level - 1]);
+    const marks = PS.zipMarks(rng, N, ctx.marks || [6, 6, 7][level - 1]);
     const num = Array(N).fill(0);                         // number printed on each square (0 = none)
     marks.forEach((idx, k) => { num[sol[idx]] = k + 1; });
     const K = marks.length;

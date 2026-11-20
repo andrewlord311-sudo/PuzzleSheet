@@ -6,7 +6,7 @@ PS.PUZZLES.queens = {
   intro: 'One guinea pig in every row, every column and every colour. They are shy: no two can touch!',
   render(el, ctx) {
     const { rng, level } = ctx;
-    const n = [5, 6, 7][level - 1];
+    const n = ctx.size || [5, 6, 7][level - 1], PIG = ctx.symbol || '🐹', WORD = ctx.word || 'guinea pig';
     const { reg, sol } = PS.queensMake(rng, n);
     const COLS = PS.shuffle(rng, ['#ff9ec7', '#ffd36b', '#8fe3a5', '#8ec8ff', '#c3a6ff', '#ffab73', '#7fe0dc', '#e8f070']);
 
@@ -26,15 +26,15 @@ PS.PUZZLES.queens = {
     }
     const rules = PS.el('div', 'qn-rules', `
       <h3>How to play</h3>
-      <p>🐹 One in <b>every row</b></p>
-      <p>🐹 One in <b>every column</b></p>
-      <p>🐹 One in <b>every colour</b></p>
+      <p>${PIG} One in <b>every row</b></p>
+      <p>${PIG} One in <b>every column</b></p>
+      <p>${PIG} One in <b>every colour</b></p>
       <p>🙈 No two touching, not even corners</p>
-      <p class="qn-tip">Tap once for ✕ (“not here”), twice for a guinea pig.</p>`);
+      <p class="qn-tip">Tap once for ✕ (“not here”), twice for a ${WORD}.</p>`);
     wrap.append(board, rules);
     el.appendChild(wrap);
 
-    function set(cell, s) { cell.s = s; cell.el.textContent = s === 1 ? '✕' : s === 2 ? '🐹' : ''; cell.el.classList.toggle('cross', s === 1); cell.el.classList.remove('hinted'); }
+    function set(cell, s) { cell.s = s; cell.el.textContent = s === 1 ? '✕' : s === 2 ? PIG : ''; cell.el.classList.toggle('cross', s === 1); cell.el.classList.remove('hinted'); }
     function bad() {
       const pigs = cells.filter(x => x.s === 2), out = new Set();
       pigs.forEach(a => pigs.forEach(b => {
@@ -47,16 +47,16 @@ PS.PUZZLES.queens = {
       const { pigs, out } = bad();
       cells.forEach(x => x.el.classList.toggle('clash', out.has(x)));
       if (out.size) PS.oops();
-      else if (pigs.length === n) ctx.solved('Every guinea pig found a quiet spot!');
+      else if (pigs.length === n) ctx.solved(ctx.adult ? 'Every crown in place!' : 'Every guinea pig found a quiet spot!');
     }
     return {
       hint() {
         const wrong = cells.find(x => x.s === 2 && sol[x.r] !== x.c);
-        if (wrong) { set(wrong, 0); ctx.say('That guinea pig is in the wrong place, so I moved it.'); check(); return true; }
+        if (wrong) { set(wrong, 0); ctx.say(`That ${WORD} is in the wrong place, so I moved it.`); check(); return true; }
         const missing = cells.find(x => sol[x.r] === x.c && x.s !== 2);
         if (!missing) return false;
         set(missing, 2); missing.el.classList.add('hinted'); check();
-        ctx.say('There! One guinea pig in the right place.');
+        ctx.say(`There! One ${WORD} in the right place.`);
         return true;
       },
     };

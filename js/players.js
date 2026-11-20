@@ -9,6 +9,12 @@ PS.PLAYERS = {
     core: ['wordsearch', 'crossword', 'sudoku', 'nonogram', 'code', 'music'],
     pairs: [['queens', 'zip'], ['tango', 'scramble'], ['ladder', 'beats']],
   },
+  grown: {
+    name: 'Grown-ups', face: '☕', colour: '#8f5cff', host: 'harmony', spoken: false, garden: false,
+    blurb: 'Puzzles to linger over',
+    core: ['sudoku9', 'crosswordA', 'cryptogram', 'tangoA'],
+    pairs: [['queensA', 'zipA'], ['kenken', 'scrambleA']],
+  },
   theo: {
     name: 'Theo', face: '🦖', colour: '#2f8cff', host: 'barnaby', spoken: true, garden: false,
     blurb: 'Numbers, pictures and mazes. Read aloud!',

@@ -9,8 +9,8 @@ PS.PUZZLES.tango = {
   intro: 'Fill every square with a sun or a moon. Follow the rules on the right!',
   render(el, ctx) {
     const { rng, level } = ctx;
-    const n = level === 1 ? 4 : 6, N = n * n;
-    const pz = PS.tangoMake(rng, n, level === 2 ? 6 : 0);
+    const n = ctx.size || (level === 1 ? 4 : 6), N = n * n;
+    const pz = PS.tangoMake(rng, n, ctx.extra != null ? ctx.extra : (level === 2 ? 6 : 0));
     const SYM = ['☀️', '🌙'];
 
     el.innerHTML = '';

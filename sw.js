@@ -1,6 +1,6 @@
 // Works offline once opened: serve from the cache, refresh it in the background.
 // Bump VERSION when files are added.
-const VERSION = 'ps-v5';
+const VERSION = 'ps-v6';
 const FILES = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'art/mascots.js', 'art/pigs.js', 'art/icon-180.png',
@@ -9,7 +9,7 @@ const FILES = [
   'js/puzzles/wordsearch.js', 'js/puzzles/crossword.js', 'js/puzzles/sudoku.js',
   'js/puzzles/nonogram.js', 'js/puzzles/code.js', 'js/puzzles/music.js',
   'js/puzzles/queens.js', 'js/puzzles/zip.js', 'js/puzzles/tango.js', 'js/puzzles/scramble.js', 'js/puzzles/ladder.js', 'js/puzzles/beats.js',
-  'js/puzzles/count.js', 'js/puzzles/blocks.js', 'js/puzzles/next.js', 'js/puzzles/sudoku4.js', 'js/puzzles/dots.js', 'js/puzzles/maze.js',
+  'js/puzzles/count.js', 'js/puzzles/blocks.js', 'js/puzzles/next.js', 'js/puzzles/sudoku4.js', 'js/puzzles/dots.js', 'js/puzzles/maze.js', 'js/puzzles/sudoku9.js', 'js/puzzles/kenken.js', 'js/puzzles/cryptogram.js', 'js/puzzles/adult.js',
 ];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
