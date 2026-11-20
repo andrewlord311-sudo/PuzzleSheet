@@ -310,3 +310,19 @@ h1, h2, h3 { font-family: var(--head); font-weight: 400; margin: 0; }
   .cw-grid { --s: min(calc(92vw / var(--w)), calc((100vh - 720px) / var(--h)), 74px); }
   .cw-right { width: min(820px, 94vw); }
 }
+
+/* Narrow windows (iPad Split View, phones): nothing spills off the side */
+.cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rainbow { white-space: nowrap; }
+@media (max-width: 860px) and (orientation: portrait), (max-width: 700px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .rainbow { font-size: clamp(26px, 9vw, 44px); }
+  .stars-badge { padding: 6px 10px; }
+  .stars-badge span { font-size: 20px; }
+  .stars-badge small { display: none; }
+  .card-name { font-size: 20px; }
+  .card-host, .card-host svg, .card-host .pig-tint, .card-host .pig-tint svg { height: 64px; }
+  .card-host .pig-tint svg { width: 64px; }
+  .card-state { font-size: 16px; padding: 4px 12px; }
+  .card-icon { font-size: 24px; }
+}
