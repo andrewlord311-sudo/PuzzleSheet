@@ -62,6 +62,26 @@
     <div id="gu-body" class="gu-body"></div>
   </section>
 
+  <!-- Theo's dino book -->
+  <section id="screen-dinos" class="screen">
+    <header class="play-top">
+      <button id="dino-back" class="round-btn" aria-label="Back">⬅</button>
+      <div class="play-titles"><h2>🌋 My Dino World</h2><span id="dino-count" class="play-level"></span></div>
+    </header>
+    <p id="dino-next" class="sheet-info"></p>
+    <div id="dino-grid" class="dino-grid"></div>
+  </section>
+
+  <!-- A dinosaur's card -->
+  <div id="dino-card" class="overlay" hidden>
+    <div class="cel-card dino-card">
+      <img id="dc-img" alt="">
+      <h2 id="dc-name"></h2>
+      <p id="dc-fact" class="cel-msg"></p>
+      <button id="dc-close" class="big-btn">OK</button>
+    </div>
+  </div>
+
   <!-- You did it! -->
   <div id="celebrate" class="overlay" hidden>
     <div class="cel-card">
@@ -69,6 +89,7 @@
       <h2 id="cel-title"></h2>
       <p id="cel-msg" class="cel-msg"></p>
       <div id="cel-stars" class="cel-stars"></div>
+      <div id="cel-hatch" class="cel-hatch" hidden></div>
       <h3>Did you like this puzzle?</h3>
       <div class="cel-choices">
         <button data-h="0">😕<small>Not for me</small></button>
@@ -90,6 +111,7 @@
   <script src="art/pigs.js"></script>
   <script src="js/core.js"></script>
   <script src="js/players.js"></script>
+  <script src="js/dinos.js"></script>
   <script src="js/words.js"></script>
   <script src="js/puzzles/wordsearch.js"></script>
   <script src="js/puzzles/crossword.js"></script>

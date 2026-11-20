@@ -16,7 +16,7 @@ PS.PLAYERS = {
     pairs: [['queensA', 'zipA'], ['kenken', 'scrambleA']],
   },
   theo: {
-    name: 'Theo', face: '🦖', colour: '#2f8cff', host: 'barnaby', spoken: true, garden: false,
+    name: 'Theo', face: '🦖', colour: '#2f8cff', host: 'barnaby', spoken: true, garden: false, dino: true,
     blurb: 'Numbers, pictures and mazes. Read aloud!',
     core: ['blocks', 'bonds', 'splits', 'phonics', 'jigsaw', 'sudoku4', 'dots', 'maze'],
     pairs: [],

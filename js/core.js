@@ -101,7 +101,8 @@ PS.makeSheet = () => {
   PS.save(PS.K('ps_sheet'), sheet);
   return sheet;
 };
-PS.sheet = () => { const s = PS.load(PS.K('ps_sheet'), null); return s && s.items && s.items.length ? s : PS.makeSheet(); };
+// A saved sheet that still holds a puzzle type that has since been removed is replaced by a fresh one.
+PS.sheet = () => { const s = PS.load(PS.K('ps_sheet'), null); return s && s.items && s.items.length && s.items.every(it => PS.PUZZLES[it.g]) ? s : PS.makeSheet(); };
 PS.saveSheet = s => PS.save(PS.K('ps_sheet'), s);
 
 // ---- Sound (Web Audio; the first touch unlocks it) ----

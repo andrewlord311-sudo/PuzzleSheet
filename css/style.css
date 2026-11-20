@@ -652,3 +652,29 @@ body.theme-adult {
 .theme-adult .card-badge { left: auto; right: 14px; width: auto; height: auto; line-height: 1.5; }
 .theme-adult .who-btn span { display: none; }
 .theme-adult .who-btn small { font-size: 13px; font-family: var(--body); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ---- Theo's dinosaurs: eggs, hatching and the dino book ---- */
+#screen-dinos { background: linear-gradient(180deg, #bfe6ff 0, #d8f2c8 38%, #b7e08c 100%); }
+.dino-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; max-width: 1000px; margin: 8px auto 20px; }
+@media (max-width: 700px) { .dino-grid { grid-template-columns: repeat(2, 1fr); } }
+.dino-tile { background: #ffffffd9; border: 4px solid #2f8cff; border-radius: 24px; padding: 8px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 6px 0 #1f5fb0; animation: cardIn .4s both; }
+.dino-tile:active { transform: translateY(4px); box-shadow: 0 2px 0 #1f5fb0; }
+.dino-tile img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+.dino-tile span { font-family: var(--head); font-size: 20px; }
+.dino-tile.locked { border-color: #9aa8b8; box-shadow: 0 6px 0 #6f7f91; background: #ffffff80; }
+.dino-tile.locked img { filter: brightness(0) opacity(.22); }
+.dino-tile.locked span { font-size: 34px; opacity: .5; }
+.dino-card { max-width: 520px; }
+.dino-card img { width: min(100%, 360px); aspect-ratio: 1; object-fit: contain; animation: speechPop .45s cubic-bezier(.2, 1.8, .4, 1); }
+.cel-hatch { display: flex; align-items: center; justify-content: center; gap: 14px; background: #eaf4ff; border-radius: 22px; padding: 10px 16px; margin: 8px 0; }
+.hatch-wrap { display: grid; place-items: center; width: 150px; height: 150px; flex: none; }
+.hatch-egg, .hatch-img { grid-area: 1 / 1; }
+.hatch-egg { font-size: 90px; animation: eggWobble 1.1s ease-in-out forwards; }
+.hatch-img { width: 150px; height: 150px; object-fit: contain; opacity: 0; transform: scale(.2); animation: hatchPop .5s 1.05s cubic-bezier(.2, 1.8, .4, 1) forwards; }
+.hatch-text { display: flex; flex-direction: column; gap: 4px; text-align: left; max-width: 300px; opacity: 0; animation: fadeUp .4s 1.3s forwards; }
+.hatch-text b { font-family: var(--head); font-size: 26px; font-weight: 400; color: var(--c); }
+.hatch-text span { font-size: 18px; }
+.hatch-next { font-family: var(--head); font-size: 24px; }
+@keyframes eggWobble { 0% { transform: rotate(0); } 15% { transform: rotate(-14deg); } 30% { transform: rotate(14deg); } 45% { transform: rotate(-18deg); } 60% { transform: rotate(18deg); } 80% { transform: scale(1.2) rotate(0); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes hatchPop { to { opacity: 1; transform: scale(1); } }
+@keyframes fadeUp { from { transform: translateY(8px); } to { opacity: 1; } }

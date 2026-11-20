@@ -14,15 +14,16 @@
   function renderHome() {
     leave(); applyTheme(true);
     const AD = PS.adult();
+    const cfg0 = PS.cfg();
     const sheet = PS.sheet();
     const made = new Date(sheet.made);
     $('sheet-info').textContent = `Sheet ${sheet.no} · ${made.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}`;
-    $('home-stars').textContent = '⭐ ' + PS.starBalance();
+    $('home-stars').textContent = cfg0.dino ? '🥚 ' + PS.eggTotal() : '⭐ ' + PS.starBalance();
     const cfg = PS.cfg();
     $('who-btn').innerHTML = `<span>${cfg.face}</span><small>${cfg.name}</small>`;
     const gl = $('garden-link');
-    gl.href = cfg.garden ? PS.GARDEN_URL : '#'; gl.classList.toggle('nolink', !cfg.garden);
-    gl.querySelector('small').textContent = cfg.garden ? 'Guinea Pig Garden' : 'My stars';
+    gl.href = cfg.garden ? PS.GARDEN_URL : '#'; gl.classList.toggle('nolink', !cfg.garden && !cfg.dino);
+    gl.querySelector('small').textContent = cfg.garden ? 'Guinea Pig Garden' : cfg.dino ? `Dino World · ${PS.dinosHatched().length} of ${PS.DINOS.length}` : 'My stars';
     const grid = $('cards'); grid.innerHTML = '';
     sheet.items.forEach((it, i) => {
       const P = PS.PUZZLES[it.g];
@@ -121,9 +122,24 @@
     const FL = AD ? [['', 'Too easy'], ['', 'About right'], ['', 'Too hard']] : [['😎', 'Too easy'], ['🙂', 'Just right'], ['😅', 'Tricky']];
     fb.forEach((b, k) => { b.innerHTML = `${FL[k][0]}<small>${FL[k][1]}</small>`; });
     done_label(AD);
-    if (!AD) setTimeout(() => PS.speak($('cel-title').textContent + ' Did you like it? Pick your hearts. Then tell me how hard it was.'), 600);
     $('cel-msg').textContent = msg || '';
     $('cel-stars').textContent = AD ? '' : `+${stars} ⭐ for the Guinea Pig Garden`;
+    // Theo's reward: eggs, and every third egg hatches a dinosaur from Dino World
+    const hz = $('cel-hatch'); hz.hidden = true; hz.innerHTML = '';
+    let spoken = '';
+    if (PS.cfg().dino) {
+      const hatched = PS.hatchIfDue();
+      $('cel-stars').textContent = `${'🥚'.repeat(stars)}  +${stars} egg${stars > 1 ? 's' : ''}`;
+      hz.hidden = false;
+      if (hatched) {
+        hz.innerHTML = `<div class="hatch-wrap"><div class="hatch-egg">🥚</div><img class="hatch-img" src="${hatched.img}" alt=""></div><div class="hatch-text"><b>A baby ${hatched.name} hatched!</b><span>${hatched.fact}</span></div>`;
+        spoken = ` ${stars} egg${stars > 1 ? 's' : ''}. A baby ${hatched.name} hatched! ${hatched.fact}`;
+      } else {
+        const more = PS.EGGS_PER_DINO - (PS.eggTotal() % PS.EGGS_PER_DINO);
+        hz.innerHTML = `<div class="hatch-next">${more} more egg${more > 1 ? 's' : ''} to hatch the next dinosaur!</div>`;
+        spoken = ` ${stars} egg${stars > 1 ? 's' : ''}. ${more} more to hatch the next dinosaur!`;
+      }
+    }
     let hearts = null, feel = null;
     const done = $('cel-done');
     done.disabled = true;
@@ -147,6 +163,7 @@
       renderHome();
     };
     ov.hidden = false;
+    if (!AD) setTimeout(() => PS.speak($('cel-title').textContent + '.' + spoken + ' Did you like it? Pick your hearts. Then tell me how hard it was.'), 600);
   }
 
   // ---------------- New sheet ----------------
@@ -189,7 +206,32 @@
   }
   $('grownups-link').addEventListener('click', e => { e.preventDefault(); renderGrownups(); });
   $('gu-back').addEventListener('click', renderHome);
-  $('garden-link').addEventListener('click', e => { if (!PS.cfg().garden) e.preventDefault(); });
+  $('garden-link').addEventListener('click', e => { if (!PS.cfg().garden) { e.preventDefault(); if (PS.cfg().dino) { PS.tap(); renderDinos(); } } });
+
+  // ---------------- Theo's dino book ----------------
+  function renderDinos() {
+    leave(); applyTheme(false);
+    const have = new Set(PS.dinosHatched()), eggs = PS.eggTotal(), more = PS.EGGS_PER_DINO - (eggs % PS.EGGS_PER_DINO);
+    $('dino-count').textContent = `${have.size} of ${PS.DINOS.length}`;
+    $('dino-next').textContent = have.size >= PS.DINOS.length ? 'You have every dinosaur!' : `🥚 ${eggs} egg${eggs === 1 ? '' : 's'} so far. ${more} more to hatch the next one!`;
+    const grid = $('dino-grid'); grid.innerHTML = '';
+    PS.DINOS.forEach((d, i) => {
+      const got = have.has(d.id);
+      const b = PS.el('button', 'dino-tile' + (got ? ' got' : ' locked'));
+      b.style.animationDelay = (i * 0.03) + 's';
+      b.innerHTML = got ? `<img src="${d.img}" alt="${d.name}"><span>${d.name}</span>` : `<img src="${d.img}" alt=""><span>?</span>`;
+      b.addEventListener('click', () => {
+        PS.tap();
+        if (!got) { PS.speak('Keep doing puzzles to hatch me!'); return; }
+        $('dc-img').src = d.img; $('dc-name').textContent = d.name; $('dc-fact').textContent = d.fact;
+        $('dino-card').hidden = false; PS.speak(d.name + '. ' + d.fact);
+      });
+      grid.appendChild(b);
+    });
+    show('screen-dinos');
+  }
+  $('dino-back').addEventListener('click', () => { PS.tap(); renderHome(); });
+  $('dc-close').addEventListener('click', () => { PS.tap(); $('dino-card').hidden = true; });
 
   // ---------------- Who is playing? ----------------
   function renderWho() {

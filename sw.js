@@ -1,11 +1,11 @@
 // Works offline once opened: serve from the cache, refresh it in the background.
 // Bump VERSION when files are added.
-const VERSION = 'ps-v11';
+const VERSION = 'ps-v13';
 const FILES = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'art/mascots.js', 'art/pigs.js', 'art/icon-180.png',
   'art/fonts/fredoka-one.woff2', 'art/fonts/quicksand.woff2', 'art/fonts/noto-music.woff2',
-  'js/core.js', 'js/players.js', 'js/words.js', 'js/app.js',
+  'js/core.js', 'js/players.js', 'art/dinos/Triceratops.png', 'art/dinos/Parasaurolophus.png', 'art/dinos/Stegosaurus.png', 'art/dinos/Apatosaurus.png', 'art/dinos/Velociraptor.png', 'art/dinos/Trex.png', 'art/dinos/Ankylosaurus.png', 'art/dinos/Brachiosaurus.png', 'art/dinos/Spinosaurus.png', 'art/dinos/Pachycephalosaurus.png', 'art/dinos/Diplodocus.png', 'art/dinos/Dilophosaurus.png', 'art/dinos/Iguanodon.png', 'art/dinos/Styracosaurus.png', 'art/dinos/Allosaurus.png', 'art/dinos/Gallimimus.png', 'art/dinos/Corythosaurus.png', 'art/dinos/Kentrosaurus.png', 'art/dinos/Carnotaurus.png', 'art/dinos/Protoceratops.png', 'art/dinos/Baryonyx.png', 'art/dinos/Therizinosaurus.png', 'art/dinos/Compsognathus.png', 'art/dinos/Giganotosaurus.png', 'js/dinos.js', 'js/words.js', 'js/app.js',
   'js/puzzles/wordsearch.js', 'js/puzzles/crossword.js', 'js/puzzles/sudoku.js',
   'js/puzzles/nonogram.js', 'js/puzzles/code.js', 'js/puzzles/music.js',
   'js/puzzles/queens.js', 'js/puzzles/zip.js', 'js/puzzles/tango.js', 'js/puzzles/scramble.js', 'js/puzzles/ladder.js', 'js/puzzles/beats.js',
