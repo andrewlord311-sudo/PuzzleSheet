@@ -23,7 +23,9 @@
       card.style.setProperty('--c', P.colour);
       card.style.animationDelay = (i * 0.06) + 's';
       const lv = PS.level(it.g);
+      const fresh = it.feat ? (PS.votes().some(v => v.g === it.g) ? '⭐ Spotlight' : '🎉 NEW!') : '';
       card.innerHTML = `
+        ${fresh ? `<div class="card-badge">${fresh}</div>` : ''}
         <div class="card-num">${i + 1}</div>
         <div class="card-host">${PS.host(P.host)}</div>
         <div class="card-icon">${P.icon}</div>
@@ -167,7 +169,7 @@
   const q = new URLSearchParams(location.search);
   if (q.get('play') && PS.PUZZLES[q.get('play')]) {
     const s = PS.sheet(); s.items[0] = { g: q.get('play'), seed: q.get('seed') ? +q.get('seed') : PS.newSeed(), done: false, hearts: null };
-    if (q.get('level')) { const L = PS.load('ps_levels', {}); L[q.get('play')] = +q.get('level'); PS.save('ps_levels', L); }
+    if (q.get('level')) { const L = PS.load(PS.K('ps_levels'), {}); L[q.get('play')] = +q.get('level'); PS.save(PS.K('ps_levels'), L); }
     PS.saveSheet(s); startPuzzle(0);
   }
 })();

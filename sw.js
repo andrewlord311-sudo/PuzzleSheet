@@ -1,6 +1,6 @@
 // Works offline once opened: serve from the cache, refresh it in the background.
 // Bump VERSION when files are added.
-const VERSION = 'ps-v3';
+const VERSION = 'ps-v4';
 const FILES = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'art/mascots.js', 'art/pigs.js', 'art/icon-180.png',
@@ -8,6 +8,7 @@ const FILES = [
   'js/core.js', 'js/words.js', 'js/app.js',
   'js/puzzles/wordsearch.js', 'js/puzzles/crossword.js', 'js/puzzles/sudoku.js',
   'js/puzzles/nonogram.js', 'js/puzzles/code.js', 'js/puzzles/music.js',
+  'js/puzzles/queens.js', 'js/puzzles/zip.js', 'js/puzzles/tango.js', 'js/puzzles/scramble.js', 'js/puzzles/ladder.js', 'js/puzzles/beats.js',
 ];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {

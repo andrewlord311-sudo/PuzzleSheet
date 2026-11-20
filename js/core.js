@@ -37,18 +37,23 @@ PS.addStars = n => { const r = PS.load(PS.REWARDS_KEY, { stars: 0 }); r.stars = 
 PS.starBalance = () => (PS.load(PS.REWARDS_KEY, {}).stars || 0) - (PS.load('ttg_garden', {}).spent || 0);
 
 // ---- Levels (1 to 3 per puzzle), moved by her "how hard was it?" answer ----
-PS.START_LEVEL = { wordsearch: 2, crossword: 2, code: 2, sudoku: 1, nonogram: 1, music: 1 };
-PS.level = g => PS.load('ps_levels', {})[g] || PS.START_LEVEL[g] || 1;
+PS.START_LEVEL = { wordsearch: 2, crossword: 2, code: 2, sudoku: 1, nonogram: 1, music: 1,
+  queens: 1, zip: 1, tango: 1, scramble: 2, ladder: 2, beats: 1 };
+// Each player keeps their own sheet, votes and levels. The first player (Maya) keeps the
+// original key names, so nothing she has already done is lost.
+PS.player = 'maya';
+PS.K = k => PS.player === 'maya' ? k : k + '_' + PS.player;
+PS.level = g => PS.load(PS.K('ps_levels'), {})[g] || PS.START_LEVEL[g] || 1;
 PS.nudgeLevel = (g, by) => {
-  const L = PS.load('ps_levels', {});
+  const L = PS.load(PS.K('ps_levels'), {});
   L[g] = Math.max(1, Math.min(3, (L[g] || PS.START_LEVEL[g] || 1) + by));
-  PS.save('ps_levels', L);
+  PS.save(PS.K('ps_levels'), L);
   return L[g];
 };
 
 // ---- Votes: hearts (0 = "not for me", 1 to 3 hearts) and how hard it felt ----
-PS.votes = () => PS.load('ps_votes', []);
-PS.addVote = v => { const all = PS.votes(); all.push(v); PS.save('ps_votes', all.slice(-500)); };
+PS.votes = () => PS.load(PS.K('ps_votes'), []);
+PS.addVote = v => { const all = PS.votes(); all.push(v); PS.save(PS.K('ps_votes'), all.slice(-500)); };
 // How much a puzzle type is wanted on the next sheet: her average hearts over the last 8 votes.
 PS.weight = g => {
   const vs = PS.votes().filter(v => v.g === g).slice(-8);
@@ -57,12 +62,27 @@ PS.weight = g => {
   return Math.max(0.15, avg);                 // "not for me" every time: shows up only now and then
 };
 
-// ---- The sheet: six puzzles, picked by her votes, each kind at most twice ----
+// ---- The sheet: six puzzles ----
+// Two "spotlight" puzzles are on the sheet every time for 4 sheets running, then the next
+// pair takes over (and the pair before joins the regular mix). The other four are picked by
+// her votes, each kind at most twice. The spotlight pairs keep cycling for ever.
 PS.SHEET_SIZE = 6;
+PS.SPOTLIGHT_SHEETS = 4;
+PS.ORIGINAL = ['wordsearch', 'crossword', 'sudoku', 'nonogram', 'code', 'music'];
+PS.NEW_PAIRS = [['queens', 'zip'], ['tango', 'scramble'], ['ladder', 'beats']];
+PS.rotation = () => PS.load(PS.K('ps_rot'), { pair: 0, n: 0, introduced: [] });
 PS.makeSheet = () => {
-  const old = PS.load('ps_sheet', { no: 0 });
-  const genres = Object.keys(PS.PUZZLES);
-  const count = {}; const items = [];
+  const old = PS.load(PS.K('ps_sheet'), { no: 0 });
+  const rot = PS.rotation();
+  if (rot.n >= PS.SPOTLIGHT_SHEETS) {
+    rot.introduced = [...new Set([...rot.introduced, ...PS.NEW_PAIRS[rot.pair]])];
+    rot.pair = (rot.pair + 1) % PS.NEW_PAIRS.length; rot.n = 0;
+  }
+  rot.n++; PS.save(PS.K('ps_rot'), rot);
+  const feat = PS.NEW_PAIRS[rot.pair].filter(g => PS.PUZZLES[g]);
+  const genres = [...PS.ORIGINAL, ...rot.introduced].filter(g => PS.PUZZLES[g] && !feat.includes(g));
+  const count = {};
+  const items = feat.map(g => ({ g, seed: PS.newSeed(), done: false, hearts: null, feat: true }));
   while (items.length < PS.SHEET_SIZE) {
     const cands = genres.filter(g => (count[g] || 0) < 2);
     const ws = cands.map(g => PS.weight(g) * ((count[g] || 0) ? 0.35 : 1));
@@ -72,17 +92,18 @@ PS.makeSheet = () => {
     count[g] = (count[g] || 0) + 1;
     items.push({ g, seed: PS.newSeed(), done: false, hearts: null });
   }
+  items.splice(0, items.length, ...PS.shuffle(Math.random, items));
   // keep the order friendly: the same kind never twice in a row if it can be helped
   for (let i = 1; i < items.length; i++) if (items[i].g === items[i - 1].g) {
     const j = items.findIndex((it, k) => k > i && it.g !== items[i].g);
     if (j > 0) [items[i], items[j]] = [items[j], items[i]];
   }
   const sheet = { no: (old.no || 0) + 1, made: new Date().toISOString(), items };
-  PS.save('ps_sheet', sheet);
+  PS.save(PS.K('ps_sheet'), sheet);
   return sheet;
 };
-PS.sheet = () => { const s = PS.load('ps_sheet', null); return s && s.items && s.items.length ? s : PS.makeSheet(); };
-PS.saveSheet = s => PS.save('ps_sheet', s);
+PS.sheet = () => { const s = PS.load(PS.K('ps_sheet'), null); return s && s.items && s.items.length ? s : PS.makeSheet(); };
+PS.saveSheet = s => PS.save(PS.K('ps_sheet'), s);
 
 // ---- Sound (Web Audio; the first touch unlocks it) ----
 PS.actx = null;
