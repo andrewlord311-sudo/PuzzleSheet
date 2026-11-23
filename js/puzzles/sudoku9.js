@@ -62,13 +62,16 @@ PS.PUZZLES.sudoku9 = {
     const pal = PS.el('div', 'su-pal su9-pal');
     for (let i = 0; i < 9; i++) { const b = PS.el('button', 'su-pick', i + 1); b.addEventListener('pointerdown', e => { e.preventDefault(); place(i); }); pal.appendChild(b); }
     const er = PS.el('button', 'su-pick su-erase', '🧽'); er.addEventListener('pointerdown', e => { e.preventDefault(); place(-1); }); pal.appendChild(er);
+    const undo = PS.el('button', 'su-pick su-undo', '↶'); undo.title = 'Undo';
+    undo.addEventListener('pointerdown', e => { e.preventDefault(); const h = hist.pop(); if (!h) return; PS.tap(); h[0].v = h[1]; h[0].el.textContent = h[1] >= 0 ? h[1] + 1 : ''; choose(h[0]); check(); });
+    pal.appendChild(undo);
     wrap.append(board, pal); el.appendChild(wrap);
 
-    let sel = null;
+    let sel = null; const hist = [];
     function choose(cell) { cells.forEach(x => x.el.classList.remove('sel', 'same')); sel = cell; cell.el.classList.add('sel'); if (cell.v >= 0) cells.forEach(x => { if (x !== cell && x.v === cell.v) x.el.classList.add('same'); }); }
     function place(v) {
       if (!sel || sel.given) { ctx.say('Tap an empty square first.'); return; }
-      PS.tap(); sel.v = v; sel.el.textContent = v >= 0 ? v + 1 : '';
+      hist.push([sel, sel.v]); PS.tap(); sel.v = v; sel.el.textContent = v >= 0 ? v + 1 : '';
       sel.el.classList.remove('pop'); void sel.el.offsetWidth; if (v >= 0) sel.el.classList.add('pop');
       choose(sel); check();
     }

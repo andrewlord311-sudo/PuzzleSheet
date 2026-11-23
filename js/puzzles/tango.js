@@ -10,7 +10,8 @@ PS.PUZZLES.tango = {
   render(el, ctx) {
     const { rng, level } = ctx;
     const n = ctx.size || (level === 1 ? 4 : 6), N = n * n;
-    const pz = PS.tangoMake(rng, n, ctx.extra != null ? ctx.extra : (level === 2 ? 6 : 0));
+    const pz = PS.tangoMake(rng, n, ctx.extra != null ? ctx.extra : (level === 2 ? 6 : 0), ctx.logic || false);
+    const hist = [];   // for Undo: [cell, value it had before]
     const SYM = ctx.adult ? ['☀︎', '☾'] : ['☀️', '🌙'];
 
     el.innerHTML = '';
@@ -24,7 +25,7 @@ PS.PUZZLES.tango = {
       const d = PS.el('div', 'tg-cell' + (given ? ' given' : ''), given ? SYM[pz.fixed[i]] : '');
       d.dataset.v = given ? pz.fixed[i] : -1;
       const cell = { i, r: Math.floor(i / n), c: i % n, v: given ? pz.fixed[i] : -1, given, el: d };
-      d.addEventListener('pointerdown', e => { e.preventDefault(); if (cell.given) return; PS.tap(); set(cell, cell.v === 1 ? -1 : cell.v + 1); check(); });
+      d.addEventListener('pointerdown', e => { e.preventDefault(); if (cell.given) return; PS.tap(); hist.push([cell, cell.v]); set(cell, cell.v === 1 ? -1 : cell.v + 1); check(); });
       board.appendChild(d); cells.push(cell);
     }
     pz.edges.forEach(e => {
@@ -48,6 +49,9 @@ PS.PUZZLES.tango = {
       <p><b class="tg-sign">=</b> means the two squares are the <b>same</b></p>
       <p><b class="tg-sign">×</b> means they are <b>different</b></p>
       <p class="tg-tip">Tap a square: ☀️, then 🌙, then empty.</p>`);
+    const undo = PS.el('button', 'tg-undo', '↶ Undo');
+    undo.addEventListener('pointerdown', e => { e.preventDefault(); const h = hist.pop(); if (!h) return; PS.tap(); set(h[0], h[1]); check(); });
+    rules.appendChild(undo);
     wrap.append(holder, rules);
     el.appendChild(wrap);
 
@@ -78,9 +82,32 @@ PS.PUZZLES.tango = {
     }
     return {
       hint() {
-        const target = cells.find(x => !x.given && x.v >= 0 && x.v !== pz.answer[x.i]) || cells.find(x => x.v < 0);
-        if (!target) return false;
-        set(target, pz.answer[target.i]); target.el.classList.add('hinted'); check();
+        const NAME = ['sun', 'moon'];
+        // a square that does not match the answer: say so and clear it
+        const bad = cells.find(x => !x.given && x.v >= 0 && x.v !== pz.answer[x.i]);
+        if (bad) {
+          hist.push([bad, bad.v]); set(bad, -1); check(); bad.el.classList.add('hinted');
+          ctx.say('One of your squares is not right, so I cleared it. Have another look around it!');
+          return true;
+        }
+        const st = PS.tangoStep(n, cells.map(x => x.v), pz.edges);
+        if (!st) {
+          const t = cells.find(x => x.v < 0); if (!t) return false;
+          hist.push([t, t.v]); set(t, pz.answer[t.i]); t.el.classList.add('hinted'); check(); return true;
+        }
+        const k = NAME[st.info.a === undefined ? 0 : st.info.a], o = NAME[st.val];
+        const text = {
+          pair: `Two ${k}s side by side: no more than two in a row, so the square beside them has to be a ${o}.`,
+          gap: `Both neighbours are ${k}s. A ${k} here would make three in a row, so it must be a ${o}.`,
+          full: `This row or column already has all of its ${k}s, so every empty square left in it is a ${o}.`,
+          edge: st.info.same ? 'The = sign means this square is the same as its neighbour.' : 'The × sign means this square is different from its neighbour.',
+          trial: `If this were a ${k}, a rule would be broken a few moves later, so it has to be a ${o}.`,
+        }[st.why];
+        const lit = st.hl.map(i => cells[i]);
+        lit.forEach(x => x.el.classList.add('hl')); setTimeout(() => lit.forEach(x => x.el.classList.remove('hl')), 3500);
+        const t = cells[st.cell];
+        hist.push([t, t.v]); set(t, st.val); t.el.classList.add('hinted'); check();
+        ctx.say(text);
         return true;
       },
     };
@@ -112,7 +139,8 @@ PS.tangoSolve = function (n, fixed, edges, limit, rng) {
 };
 // Start from a full answer, then take clues away one at a time, putting back any that
 // would allow a second answer. `extra` clues are put back to make the puzzle easier.
-PS.tangoMake = function (rng, n, extra = 0) {
+// basic: true = put clues back until the easy steps alone can solve it; 'trial' = until easy steps plus one "what if" at a time can.
+PS.tangoMake = function (rng, n, extra = 0, basic = false) {
   const answer = PS.tangoSolve(n, Array(n * n).fill(-1), [], 1, rng).first;
   const edges = [];
   for (let i = 0; i < n * n; i++) {
@@ -128,6 +156,83 @@ PS.tangoMake = function (rng, n, extra = 0) {
     arr[i] = false;
     if (state() !== 1) arr[i] = true; else removed.push([t, i]);
   }
-  PS.shuffle(rng, removed).slice(0, extra).forEach(([t, i]) => { (t === 'c' ? keepCell : keepEdge)[i] = true; });
+  const back = PS.shuffle(rng, removed);
+  if (basic) {
+    const solvable = () => PS.tangoBasicSolvable(n, answer.map((v, i) => keepCell[i] ? v : -1), edges.filter((e, i) => keepEdge[i]), basic === 'trial');
+    while (!solvable() && back.length) { const [t, i] = back.shift(); (t === 'c' ? keepCell : keepEdge)[i] = true; }
+  }
+  back.slice(0, extra).forEach(([t, i]) => { (t === 'c' ? keepCell : keepEdge)[i] = true; });
   return { answer, fixed: answer.map((v, i) => keepCell[i] ? v : -1), edges: edges.filter((e, i) => keepEdge[i]).map(e => ({ ...e })) };
+};
+
+// ---- What a person could work out next ----
+// cur: -1 empty, 0 sun, 1 moon per square. Returns { cell, val, why, hl: [squares to light up], info } or null.
+//   pair   two the same side by side, so the squares at both ends must be the other kind
+//   gap    the same kind on both sides of a gap, so the gap must be the other kind
+//   full   a row or column already has its half of one kind, so the rest are the other kind
+//   edge   a = or × sign next to a filled square
+//   trial  one kind in this square would break a rule soon after, so it must be the other kind
+PS.tangoViolates = function (n, g, edges) {
+  const half = n / 2;
+  for (let k = 0; k < n; k++) for (const val of [0, 1]) {
+    let rc = 0, cc = 0;
+    for (let j = 0; j < n; j++) { if (g[k * n + j] === val) rc++; if (g[j * n + k] === val) cc++; }
+    if (rc > half || cc > half) return true;
+  }
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    const a = g[r * n + c]; if (a < 0) continue;
+    if (c + 2 < n && a === g[r * n + c + 1] && a === g[r * n + c + 2]) return true;
+    if (r + 2 < n && a === g[(r + 1) * n + c] && a === g[(r + 2) * n + c]) return true;
+  }
+  return edges.some(e => g[e.a] >= 0 && g[e.b] >= 0 && (g[e.a] === g[e.b]) !== e.same);
+};
+PS.tangoStep = function (n, cur, edges, allowTrial = true) {
+  const g = cur.slice(), half = n / 2;
+  const line = (kind, k) => [...Array(n).keys()].map(j => kind === 'r' ? k * n + j : j * n + k);
+  const lines = [];
+  for (let k = 0; k < n; k++) { lines.push(line('r', k)); lines.push(line('c', k)); }
+  // basic steps, in the order a person would look for them
+  const basic = (grid) => {
+    for (const L of lines) for (let j = 0; j + 1 < n; j++) {          // pair
+      const a = grid[L[j]];
+      if (a >= 0 && a === grid[L[j + 1]]) {
+        if (j - 1 >= 0 && grid[L[j - 1]] < 0) return { cell: L[j - 1], val: 1 - a, why: 'pair', hl: [L[j], L[j + 1]], info: { a } };
+        if (j + 2 < n && grid[L[j + 2]] < 0) return { cell: L[j + 2], val: 1 - a, why: 'pair', hl: [L[j], L[j + 1]], info: { a } };
+      }
+    }
+    for (const L of lines) for (let j = 0; j + 2 < n; j++) {          // gap
+      const a = grid[L[j]];
+      if (a >= 0 && a === grid[L[j + 2]] && grid[L[j + 1]] < 0) return { cell: L[j + 1], val: 1 - a, why: 'gap', hl: [L[j], L[j + 2]], info: { a } };
+    }
+    for (const L of lines) for (const val of [0, 1]) {                // full
+      const have = L.filter(i => grid[i] === val).length;
+      if (have === half && L.some(i => grid[i] < 0)) { const i = L.find(x => grid[x] < 0); return { cell: i, val: 1 - val, why: 'full', hl: L.filter(x => grid[x] === val), info: { a: val, line: L === lines[0] } }; }
+    }
+    for (const e of edges) {                                           // sign
+      if (grid[e.a] >= 0 && grid[e.b] < 0) return { cell: e.b, val: e.same ? grid[e.a] : 1 - grid[e.a], why: 'edge', hl: [e.a], info: { same: e.same } };
+      if (grid[e.b] >= 0 && grid[e.a] < 0) return { cell: e.a, val: e.same ? grid[e.b] : 1 - grid[e.b], why: 'edge', hl: [e.b], info: { same: e.same } };
+    }
+    return null;
+  };
+  const b = basic(g);
+  if (b || !allowTrial) return b;
+  // trial: suppose one kind here, follow the easy steps, and see whether a rule breaks
+  for (let i = 0; i < n * n; i++) if (g[i] < 0) for (const v of [0, 1]) {
+    const t = g.slice(); t[i] = v;
+    let bad = PS.tangoViolates(n, t, edges);
+    for (let guard = 0; guard < 60 && !bad; guard++) { const s = basic(t); if (!s) break; t[s.cell] = s.val; bad = PS.tangoViolates(n, t, edges); }
+    if (bad) return { cell: i, val: 1 - v, why: 'trial', hl: [], info: { a: v } };
+  }
+  return null;
+};
+// Can the easy steps alone finish this grid (no guessing)?
+PS.tangoBasicSolvable = function (n, fixed, edges, allowTrial = false) {
+  const g = fixed.slice();
+  for (let guard = 0; guard < n * n + 5; guard++) {
+    if (g.every(v => v >= 0)) return true;
+    const s = PS.tangoStep(n, g, edges, allowTrial);
+    if (!s) return false;
+    g[s.cell] = s.val;
+  }
+  return false;
 };

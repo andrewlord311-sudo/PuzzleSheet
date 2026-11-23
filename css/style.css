@@ -678,3 +678,17 @@ body.theme-adult {
 @keyframes eggWobble { 0% { transform: rotate(0); } 15% { transform: rotate(-14deg); } 30% { transform: rotate(14deg); } 45% { transform: rotate(-18deg); } 60% { transform: rotate(18deg); } 80% { transform: scale(1.2) rotate(0); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
 @keyframes hatchPop { to { opacity: 1; transform: scale(1); } }
 @keyframes fadeUp { from { transform: translateY(8px); } to { opacity: 1; } }
+
+/* ---- no accidental zooming: double-tap zoom off, and no scale "pop" on grown-up puzzles ---- */
+html, body { touch-action: manipulation; }
+.tg-cell, .su-cell, .qn-cell, .cw-cell, .zp-cell { touch-action: manipulation; }
+.theme-adult .pop, .theme-adult .tg-cell.pop, .theme-adult .su-cell.pop, .theme-adult .ft-cell.pop { animation: none; }
+.theme-adult .tg-cell.clash, .theme-adult .su-cell.clash, .theme-adult .qn-cell.clash { animation: none; }
+.tg-cell.hl { box-shadow: inset 0 0 0 4px #ffb100; }
+.tg-undo { display: block; margin-top: 12px; padding: 10px 20px; border-radius: 99px; background: #fff; border: 3px solid var(--c); font-family: var(--head); font-size: 20px; box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 60%, #000); }
+.tg-undo:active { transform: translateY(3px); box-shadow: none; }
+.theme-adult .tg-undo { border: 1px solid #1f243040; border-radius: 6px; box-shadow: none; font-family: var(--body); font-size: 15px; font-weight: 600; letter-spacing: .04em; padding: 9px 18px; }
+.theme-adult .tg-undo:active { transform: none; background: #f1eee7; }
+.ft-cell, .ft-edge { min-width: 0; min-height: 0; overflow: hidden; }
+.ft-edge { line-height: 1; }
+.su-grid.ft { box-shadow: none; border: none; }
